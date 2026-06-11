@@ -6,7 +6,8 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://nmnonprofits.com',
-  output: 'static',
+  // hybrid = static by default; pages with `export const prerender = false` get SSR
+  output: 'hybrid',
   adapter: vercel({
     // SSR pages (search, API routes) get edge-optimized Fluid Compute;
     // everything else is statically generated at build time.
