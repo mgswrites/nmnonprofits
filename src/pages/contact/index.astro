@@ -1,0 +1,55 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout
+  title="Contact — NM Nonprofits"
+  description="Get in touch with the NM Nonprofits team for questions, corrections, or partnership inquiries."
+>
+  <div class="container-content py-16 max-w-3xl">
+    <h1 class="text-4xl font-serif font-bold text-gray-900 mb-4">Contact Us</h1>
+    <p class="text-gray-500 text-lg mb-12 leading-relaxed">
+      We'd love to hear from you. Use the options below depending on what you need.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-14">
+
+      <div class="card p-6">
+        <h2 class="font-semibold text-gray-900 mb-1">General inquiries</h2>
+        <p class="text-sm text-gray-500 mb-3">Questions about the directory, partnerships, or media requests.</p>
+        <a href="mailto:hello@nmnonprofits.com" class="text-turquoise-700 text-sm font-medium hover:underline">
+          hello@nmnonprofits.com
+        </a>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="font-semibold text-gray-900 mb-1">Listing corrections</h2>
+        <p class="text-sm text-gray-500 mb-3">Found outdated or incorrect information about an organization?</p>
+        <a href="mailto:corrections@nmnonprofits.com" class="text-turquoise-700 text-sm font-medium hover:underline">
+          corrections@nmnonprofits.com
+        </a>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="font-semibold text-gray-900 mb-1">Add your organization</h2>
+        <p class="text-sm text-gray-500 mb-3">Submit a new nonprofit or foundation to the directory.</p>
+        <a href="/submit/" class="text-turquoise-700 text-sm font-medium hover:underline">
+          Submit via our form
+        </a>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="font-semibold text-gray-900 mb-1">Grant listings</h2>
+        <p class="text-sm text-gray-500 mb-3">Funders can submit open grant opportunities for free.</p>
+        <a href="mailto:grants@nmnonprofits.com" class="text-turquoise-700 text-sm font-medium hover:underline">
+          grants@nmnonprofits.com
+        </a>
+      </div>
+
+    </div>
+
+    <div class="bg-turquoise-50 rounded-xl p-6 text-sm text-turquoise-900">
+      We typically respond within 2 business days. For urgent corrections to a listing, email corrections@nmnonprofits.com directly and include the organization name and what needs to be updated.
+    </div>
+  </div>
+</Layout>
