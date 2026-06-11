@@ -1,0 +1,32 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getSectorSummaries } from '../../lib/queries';
+
+const sectors = await getSectorSummaries();
+---
+
+<Layout
+  title="New Mexico Nonprofit Sectors | NM Nonprofits"
+  description="Browse New Mexico nonprofits and funders by issue area — arts, education, health, housing, environment, and more."
+>
+  <div class="container-content py-10">
+    <h1 class="text-3xl font-serif font-bold mb-2">Issue Areas</h1>
+    <p class="text-gray-500 mb-10">Browse New Mexico's nonprofit ecosystem by cause area</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {sectors.map((s) => (
+        <a href={`/nonprofits/${s.slug}/`} class="card p-6 flex flex-col gap-2 group">
+          <h2 class="font-serif font-semibold text-lg text-gray-900 group-hover:text-turquoise-700 transition-colors">
+            {s.name}
+          </h2>
+          <div class="flex gap-4 text-sm text-gray-500 mt-auto">
+            <span>{s.org_count} nonprofits</span>
+            {s.active_grant_count > 0 && (
+              <span class="text-turquoise-700 font-medium">{s.active_grant_count} open grants</span>
+            )}
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</Layout>

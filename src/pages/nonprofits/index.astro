@@ -1,0 +1,98 @@
+---
+export const prerender = false; // SSR: supports ?q, ?city, ?sector, ?region filters
+
+import Layout from '../../layouts/Layout.astro';
+import ListingCard from '../../components/listing/ListingCard.astro';
+import { getListingCards, getAllSectors, getAllCities } from '../../lib/queries';
+import type { NmRegion } from '../../lib/types';
+
+const q          = Astro.url.searchParams.get('q')      ?? undefined;
+const sectorSlug = Astro.url.searchParams.get('sector') ?? undefined;
+const citySlug   = Astro.url.searchParams.get('city')   ?? undefined;
+const regionCode = (Astro.url.searchParams.get('region') ?? undefined) as NmRegion | undefined;
+const page       = Math.max(1, parseInt(Astro.url.searchParams.get('page') ?? '1', 10));
+const limit      = 24;
+const offset     = (page - 1) * limit;
+
+const [listings, sectors, cities] = await Promise.all([
+  getListingCards({ sectorSlug, citySlug, regionCode, limit, offset }),
+  getAllSectors(),
+  getAllCities(),
+]);
+
+const title = sectorSlug
+  ? `${sectors.find((s) => s.slug === sectorSlug)?.name ?? 'Sector'} Nonprofits — New Mexico`
+  : 'New Mexico Nonprofits Directory';
+---
+
+<Layout title={title} description="Browse New Mexico nonprofits by sector, city, and region.">
+  <div class="container-content py-10">
+    <!-- Page header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-serif font-bold text-gray-900">{title}</h1>
+      <p class="text-gray-500 mt-1 text-sm">{listings.length} organizations found</p>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+      <!-- Sidebar filters -->
+      <aside class="lg:w-60 shrink-0">
+        <form method="get" class="space-y-6">
+          {q && <input type="hidden" name="q" value={q} />}
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Issue Area</label>
+            <select name="sector" class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-turquoise-500">
+              <option value="">All sectors</option>
+              {sectors.map((s) => (
+                <option value={s.slug} selected={sectorSlug === s.slug}>{s.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">City</label>
+            <select name="city" class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-turquoise-500">
+              <option value="">All cities</option>
+              {cities.map((c) => (
+                <option value={c.slug} selected={citySlug === c.slug}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <button type="submit" class="btn-primary w-full justify-center">Apply filters</button>
+          {(sectorSlug || citySlug || regionCode) && (
+            <a href="/nonprofits/" class="btn-secondary w-full justify-center text-center">Clear filters</a>
+          )}
+        </form>
+      </aside>
+
+      <!-- Results grid -->
+      <div class="flex-1">
+        {listings.length > 0 ? (
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {listings.map((l) => <ListingCard listing={l} />)}
+          </div>
+        ) : (
+          <div class="text-center py-20 text-gray-400">
+            <p class="text-lg font-medium">No organizations found</p>
+            <p class="text-sm mt-1">Try adjusting your filters</p>
+          </div>
+        )}
+
+        <!-- Pagination -->
+        {listings.length === limit && (
+          <div class="flex justify-center gap-3 mt-10">
+            {page > 1 && (
+              <a href={`?page=${page - 1}${sectorSlug ? `&sector=${sectorSlug}` : ''}${citySlug ? `&city=${citySlug}` : ''}`} class="btn-secondary">
+                Previous
+              </a>
+            )}
+            <a href={`?page=${page + 1}${sectorSlug ? `&sector=${sectorSlug}` : ''}${citySlug ? `&city=${citySlug}` : ''}`} class="btn-primary">
+              Next page
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</Layout>

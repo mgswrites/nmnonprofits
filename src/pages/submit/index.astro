@@ -1,0 +1,129 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getAllSectors, getAllRegions } from '../../lib/queries';
+
+const [sectors, regions] = await Promise.all([getAllSectors(), getAllRegions()]);
+
+const orgTypes = [
+  { value: 'nonprofit_501c3',    label: '501(c)(3) Nonprofit' },
+  { value: 'nonprofit_501c4',    label: '501(c)(4) Social Welfare Org' },
+  { value: 'fiscal_sponsor',     label: 'Fiscal Sponsor' },
+  { value: 'tribal_organization',label: 'Tribal Organization' },
+  { value: 'community_foundation','label': 'Community Foundation' },
+  { value: 'resource_hub',       label: 'Resource Hub / Intermediary' },
+];
+---
+
+<Layout
+  title="Submit Your Organization | NM Nonprofits"
+  description="Add your New Mexico nonprofit or foundation to the directory. Free basic listings available."
+  noIndex={true}
+>
+  <div class="container-content py-12 max-w-2xl">
+    <h1 class="text-3xl font-serif font-bold mb-2">Submit Your Organization</h1>
+    <p class="text-gray-500 mb-8">
+      All submissions are reviewed before publishing. Basic listings are free.
+      <a href="/guides/listing-tiers/" class="text-turquoise-700 hover:underline">Learn about paid tiers →</a>
+    </p>
+
+    <form
+      method="POST"
+      action="/api/submit"
+      class="space-y-6 bg-white border border-gray-200 rounded-xl p-8"
+    >
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="sm:col-span-2">
+          <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Organization Name <span class="text-red-500">*</span></label>
+          <input id="name" name="name" type="text" required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+        </div>
+
+        <div>
+          <label for="org_type" class="block text-sm font-medium text-gray-700 mb-1">Organization Type <span class="text-red-500">*</span></label>
+          <select id="org_type" name="org_type" required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500">
+            {orgTypes.map((t) => <option value={t.value}>{t.label}</option>)}
+          </select>
+        </div>
+
+        <div>
+          <label for="ein" class="block text-sm font-medium text-gray-700 mb-1">EIN</label>
+          <input id="ein" name="ein" type="text" placeholder="XX-XXXXXXX"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+        </div>
+
+        <div>
+          <label for="city_name" class="block text-sm font-medium text-gray-700 mb-1">City <span class="text-red-500">*</span></label>
+          <input id="city_name" name="city_name" type="text" required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+        </div>
+
+        <div>
+          <label for="region_code" class="block text-sm font-medium text-gray-700 mb-1">Region <span class="text-red-500">*</span></label>
+          <select id="region_code" name="region_code" required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500">
+            {regions.map((r) => <option value={r.code}>{r.name}</option>)}
+          </select>
+        </div>
+
+        <div class="sm:col-span-2">
+          <label for="website_url" class="block text-sm font-medium text-gray-700 mb-1">Website</label>
+          <input id="website_url" name="website_url" type="url" placeholder="https://"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+        </div>
+
+        <div class="sm:col-span-2">
+          <label for="mission" class="block text-sm font-medium text-gray-700 mb-1">Mission Statement</label>
+          <textarea id="mission" name="mission" rows="3" maxlength="300"
+            placeholder="A concise description of your organization's mission (max 300 characters)"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500 resize-none"></textarea>
+        </div>
+
+        <div class="sm:col-span-2">
+          <fieldset>
+            <legend class="block text-sm font-medium text-gray-700 mb-2">Issue Areas</legend>
+            <div class="grid grid-cols-2 gap-2">
+              {sectors.map((s) => (
+                <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                  <input type="checkbox" name="sectors" value={s.slug}
+                    class="rounded border-gray-300 text-turquoise-600 focus:ring-turquoise-500" />
+                  {s.name}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="sm:col-span-2 border-t border-gray-100 pt-4">
+          <p class="text-sm font-semibold text-gray-700 mb-3">Your Contact Information</p>
+        </div>
+
+        <div>
+          <label for="submitter_name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+          <input id="submitter_name" name="submitter_name" type="text"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+        </div>
+
+        <div>
+          <label for="submitter_email" class="block text-sm font-medium text-gray-700 mb-1">Your Email <span class="text-red-500">*</span></label>
+          <input id="submitter_email" name="submitter_email" type="email" required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+        </div>
+
+        <div class="sm:col-span-2">
+          <label for="submitter_note" class="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
+          <textarea id="submitter_note" name="submitter_note" rows="2"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500 resize-none"></textarea>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary w-full justify-center">
+        Submit for Review
+      </button>
+
+      <p class="text-xs text-gray-400 text-center">
+        Submissions are reviewed within 2–3 business days. You'll receive an email confirmation.
+      </p>
+    </form>
+  </div>
+</Layout>

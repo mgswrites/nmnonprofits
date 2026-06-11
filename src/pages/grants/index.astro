@@ -1,0 +1,75 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import GrantCard from '../../components/grant/GrantCard.astro';
+import { getGrantCards, getAllSectors } from '../../lib/queries';
+import type { NmRegion } from '../../lib/types';
+
+const sectorSlug = Astro.url.searchParams.get('sector') ?? undefined;
+const regionCode = (Astro.url.searchParams.get('region') ?? undefined) as NmRegion | undefined;
+const statusFilter = (Astro.url.searchParams.get('status') ?? 'open') as 'open' | 'rolling' | undefined;
+const page   = Math.max(1, parseInt(Astro.url.searchParams.get('page') ?? '1', 10));
+const limit  = 24;
+const offset = (page - 1) * limit;
+
+const [grants, sectors] = await Promise.all([
+  getGrantCards({ sectorSlug, regionCode, status: statusFilter, limit, offset }),
+  getAllSectors(),
+]);
+---
+
+<Layout
+  title="New Mexico Grant Opportunities | NM Nonprofits"
+  description="Open grants and funding opportunities for New Mexico nonprofits. Updated regularly with deadlines, amounts, and application links."
+>
+  <div class="container-content py-10">
+    <div class="mb-8">
+      <h1 class="text-3xl font-serif font-bold text-gray-900">Grant Opportunities</h1>
+      <p class="text-gray-500 mt-1 text-sm">
+        Active funding for New Mexico nonprofits — {grants.length} results
+      </p>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+      <aside class="lg:w-60 shrink-0">
+        <form method="get" class="space-y-6">
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Status</label>
+            <select name="status" class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2">
+              <option value="open"    selected={statusFilter === 'open'}>Open</option>
+              <option value="rolling" selected={statusFilter === 'rolling'}>Rolling</option>
+              <option value=""        selected={!statusFilter}>All</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Issue Area</label>
+            <select name="sector" class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2">
+              <option value="">All sectors</option>
+              {sectors.map((s) => (
+                <option value={s.slug} selected={sectorSlug === s.slug}>{s.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <button type="submit" class="btn-primary w-full justify-center">Filter grants</button>
+          <a href="/grants/" class="btn-secondary w-full justify-center text-center">Reset</a>
+        </form>
+      </aside>
+
+      <div class="flex-1">
+        {grants.length > 0 ? (
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {grants.map((g) => <GrantCard grant={g} />)}
+          </div>
+        ) : (
+          <div class="text-center py-20 text-gray-400">
+            <p class="text-lg font-medium">No grants found</p>
+            <p class="text-sm mt-1">Try adjusting your filters or check back soon</p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</Layout>

@@ -1,0 +1,82 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import { getFunders, getAllSectors } from '../../lib/queries';
+import { funderTypeLabel, formatCurrency } from '../../lib/utils';
+import type { NmRegion } from '../../lib/types';
+
+const sectorSlug = Astro.url.searchParams.get('sector') ?? undefined;
+const regionCode = (Astro.url.searchParams.get('region') ?? undefined) as NmRegion | undefined;
+const page   = Math.max(1, parseInt(Astro.url.searchParams.get('page') ?? '1', 10));
+const limit  = 24;
+const offset = (page - 1) * limit;
+
+const [funders, sectors] = await Promise.all([
+  getFunders({ sectorSlug, regionCode, limit, offset }),
+  getAllSectors(),
+]);
+---
+
+<Layout
+  title="New Mexico Foundations & Funders | NM Nonprofits"
+  description="Directory of New Mexico foundations, community foundations, and grant-making organizations."
+>
+  <div class="container-content py-10">
+    <div class="mb-8">
+      <h1 class="text-3xl font-serif font-bold text-gray-900">Foundations & Funders</h1>
+      <p class="text-gray-500 mt-1 text-sm">
+        Grant-making organizations supporting New Mexico nonprofits — {funders.length} results
+      </p>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+      <aside class="lg:w-60 shrink-0">
+        <form method="get" class="space-y-6">
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Issue Area Funded</label>
+            <select name="sector" class="w-full text-sm border border-gray-200 rounded-lg px-3 py-2">
+              <option value="">All sectors</option>
+              {sectors.map((s) => (
+                <option value={s.slug} selected={sectorSlug === s.slug}>{s.name}</option>
+              ))}
+            </select>
+          </div>
+          <button type="submit" class="btn-primary w-full justify-center">Filter</button>
+          <a href="/funders/" class="btn-secondary w-full justify-center text-center">Reset</a>
+        </form>
+      </aside>
+
+      <div class="flex-1">
+        {funders.length > 0 ? (
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {funders.map((f) => (
+              <a href={`/funders/${f.slug}/`} class="card p-5 flex flex-col gap-2 group">
+                {f.logo_url && (
+                  <img src={f.logo_url} alt={`${f.name} logo`} width="48" height="48"
+                    class="w-12 h-12 rounded-lg object-contain bg-gray-50 border border-gray-100" loading="lazy" />
+                )}
+                <h3 class="font-semibold text-gray-900 group-hover:text-turquoise-700 transition-colors text-sm leading-snug line-clamp-2">
+                  {f.name}
+                </h3>
+                <p class="text-xs text-gray-400">{funderTypeLabel(f.funder_type)}</p>
+                {f.annual_giving && (
+                  <p class="text-sm text-turquoise-700 font-medium mt-auto">
+                    {formatCurrency(f.annual_giving)}/yr giving
+                  </p>
+                )}
+                {f.description && (
+                  <p class="text-xs text-gray-500 line-clamp-2">{f.description}</p>
+                )}
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-20 text-gray-400">
+            <p class="text-lg font-medium">No funders found</p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</Layout>

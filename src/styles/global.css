@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand-primary: theme('colors.turquoise.700');
+    --brand-accent:  theme('colors.zia.600');
+  }
+
+  html {
+    @apply antialiased scroll-smooth;
+  }
+
+  body {
+    @apply bg-white text-gray-900 font-sans;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif tracking-tight;
+  }
+
+  a {
+    @apply transition-colors duration-150;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-turquoise-700 text-white font-semibold text-sm
+           px-5 py-2.5 rounded-lg
+           hover:bg-turquoise-800 focus-visible:outline
+           focus-visible:outline-2 focus-visible:outline-turquoise-600
+           transition-colors duration-150;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           border border-gray-300 bg-white text-gray-700 font-semibold text-sm
+           px-5 py-2.5 rounded-lg
+           hover:bg-gray-50 focus-visible:outline
+           focus-visible:outline-2 focus-visible:outline-turquoise-600
+           transition-colors duration-150;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5
+           rounded-full text-xs font-medium;
+  }
+
+  .badge-tier-free     { @apply bg-gray-100 text-gray-600; }
+  .badge-tier-basic    { @apply bg-blue-50 text-blue-700; }
+  .badge-tier-featured { @apply bg-turquoise-50 text-turquoise-800; }
+  .badge-tier-premium  { @apply bg-zia-50 text-zia-800; }
+
+  .badge-status-open    { @apply bg-green-50 text-green-700; }
+  .badge-status-rolling { @apply bg-blue-50 text-blue-700; }
+  .badge-status-closed  { @apply bg-red-50 text-red-600; }
+  .badge-status-upcoming{ @apply bg-yellow-50 text-yellow-700; }
+
+  .card {
+    @apply bg-white rounded-xl border border-gray-100
+           shadow-sm hover:shadow-md transition-shadow duration-200;
+  }
+
+  .section-header {
+    @apply text-2xl font-serif font-semibold text-gray-900 mb-1;
+  }
+
+  .container-content {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}

@@ -1,0 +1,67 @@
+---
+import type { ListingCard } from '../../lib/types';
+import { truncate } from '../../lib/utils';
+
+interface Props {
+  listing: ListingCard;
+}
+
+const { listing } = Astro.props;
+---
+
+<a
+  href={`/listing/${listing.slug}/`}
+  class="card flex flex-col p-5 gap-3 group"
+  aria-label={listing.name}
+>
+  <!-- Header row: logo + name -->
+  <div class="flex items-start gap-3">
+    {listing.logo_url ? (
+      <img
+        src={listing.logo_url}
+        alt={`${listing.name} logo`}
+        width="48"
+        height="48"
+        class="w-12 h-12 rounded-lg object-contain bg-gray-50 border border-gray-100 flex-shrink-0"
+        loading="lazy"
+      />
+    ) : (
+      <div class="w-12 h-12 rounded-lg bg-turquoise-50 flex items-center justify-center flex-shrink-0">
+        <span class="text-turquoise-700 font-bold text-lg">{listing.name.charAt(0)}</span>
+      </div>
+    )}
+
+    <div class="min-w-0 flex-1">
+      <h3 class="font-semibold text-gray-900 group-hover:text-turquoise-700 transition-colors leading-snug text-sm line-clamp-2">
+        {listing.name}
+      </h3>
+      {listing.city_name && (
+        <p class="text-xs text-gray-400 mt-0.5">{listing.city_name}</p>
+      )}
+    </div>
+
+    {listing.is_verified && (
+      <span class="flex-shrink-0" title="IRS Verified">
+        <svg class="w-4 h-4 text-turquoise-600" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+      </span>
+    )}
+  </div>
+
+  <!-- Mission -->
+  {listing.mission && (
+    <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">
+      {truncate(listing.mission, 120)}
+    </p>
+  )}
+
+  <!-- Sectors -->
+  {listing.sectors.length > 0 && (
+    <div class="flex flex-wrap gap-1.5 mt-auto pt-1">
+      {listing.sectors.slice(0, 3).map((s) => (
+        <span class="badge bg-gray-100 text-gray-600">{s.name}</span>
+      ))}
+    </div>
+  )}
+</a>

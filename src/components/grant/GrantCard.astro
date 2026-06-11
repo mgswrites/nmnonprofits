@@ -1,0 +1,59 @@
+---
+import type { GrantCard } from '../../lib/types';
+import { formatGrantRange, formatDeadline, grantStatusLabel } from '../../lib/utils';
+
+interface Props {
+  grant: GrantCard;
+}
+
+const { grant } = Astro.props;
+
+const statusClass: Record<string, string> = {
+  open:     'badge-status-open',
+  rolling:  'badge-status-rolling',
+  closed:   'badge-status-closed',
+  upcoming: 'badge-status-upcoming',
+};
+---
+
+<a
+  href={`/grants/${grant.slug}/`}
+  class="card flex flex-col p-5 gap-3 group"
+  aria-label={grant.title}
+>
+  <!-- Status + deadline -->
+  <div class="flex items-center justify-between gap-2">
+    <span class={`badge ${statusClass[grant.status] ?? 'badge-tier-free'}`}>
+      {grantStatusLabel(grant.status)}
+    </span>
+    <span class="text-xs text-gray-400">
+      {grant.deadline_date ? `Due ${formatDeadline(grant.deadline_date)}` : 'Rolling deadline'}
+    </span>
+  </div>
+
+  <!-- Title -->
+  <h3 class="font-semibold text-gray-900 group-hover:text-turquoise-700 transition-colors leading-snug text-sm line-clamp-2">
+    {grant.title}
+  </h3>
+
+  <!-- Funder -->
+  {grant.funder_name && (
+    <p class="text-xs text-gray-500 -mt-1">
+      {grant.funder_name}
+    </p>
+  )}
+
+  <!-- Amount -->
+  <p class="text-sm font-medium text-turquoise-700 mt-auto">
+    {formatGrantRange(grant.min_amount, grant.max_amount)}
+  </p>
+
+  <!-- Sectors -->
+  {grant.sectors.length > 0 && (
+    <div class="flex flex-wrap gap-1.5 pt-1 border-t border-gray-50">
+      {grant.sectors.slice(0, 3).map((s) => (
+        <span class="badge bg-gray-100 text-gray-600">{s.name}</span>
+      ))}
+    </div>
+  )}
+</a>
