@@ -33,6 +33,11 @@ export async function getAllCities(): Promise<City[]> {
   return sql<City[]>`SELECT * FROM cities ORDER BY name`;
 }
 
+export async function getCitiesWithOrgs(): Promise<City[]> {
+  const sql = getDb();
+  return sql<City[]>`SELECT * FROM cities WHERE org_count > 0 ORDER BY org_count DESC, name`;
+}
+
 export async function getCityBySlug(slug: string): Promise<City | null> {
   const sql = getDb();
   const rows = await sql<City[]>`SELECT * FROM cities WHERE slug = ${slug} LIMIT 1`;
