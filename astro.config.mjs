@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
-import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
@@ -14,7 +13,6 @@ export default defineConfig({
     webAnalytics: { enabled: true },
   }),
   integrations: [
-    tailwind({ applyBaseStyles: false }),
     sitemap({
       // Exclude admin, submit queue, and parameterized search result pages
       filter: (page) =>
