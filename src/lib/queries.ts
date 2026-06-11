@@ -87,9 +87,9 @@ export async function getListingCards(opts: {
     LEFT JOIN cities c           ON c.id = l.city_id
     WHERE l.deleted_at IS NULL
       AND l.status = 'approved'
-      AND (${sectorSlug ?? null} IS NULL OR s.slug = ${sectorSlug ?? null})
-      AND (${citySlug   ?? null} IS NULL OR c.slug = ${citySlug   ?? null})
-      AND (${regionCode ?? null} IS NULL OR l.region_code = ${regionCode ?? null})
+      AND (${sectorSlug ?? null}::text IS NULL OR s.slug = ${sectorSlug ?? null})
+      AND (${citySlug   ?? null}::text IS NULL OR c.slug = ${citySlug   ?? null})
+      AND (${regionCode ?? null}::text IS NULL OR l.region_code::text = ${regionCode ?? null})
     GROUP BY l.id
     ORDER BY l.tier DESC, l.is_verified DESC, l.name
     LIMIT  ${limit}
@@ -130,8 +130,8 @@ export async function getFunders(opts: {
     LEFT JOIN sectors s         ON s.id = fs.sector_id
     WHERE f.deleted_at IS NULL
       AND f.status = 'approved'
-      AND (${sectorSlug  ?? null} IS NULL OR s.slug = ${sectorSlug  ?? null})
-      AND (${regionCode  ?? null} IS NULL OR f.region_code = ${regionCode  ?? null} OR f.funds_statewide = true)
+      AND (${sectorSlug  ?? null}::text IS NULL OR s.slug = ${sectorSlug  ?? null})
+      AND (${regionCode  ?? null}::text IS NULL OR f.region_code::text = ${regionCode  ?? null} OR f.funds_statewide = true)
     ORDER BY f.tier DESC, f.is_verified DESC, f.name
     LIMIT  ${limit}
     OFFSET ${offset}
@@ -175,9 +175,9 @@ export async function getGrantCards(opts: {
     LEFT JOIN grant_sectors gs ON gs.grant_id = g.id
     LEFT JOIN sectors s       ON s.id = gs.sector_id
     WHERE g.deleted_at IS NULL
-      AND (${status      ?? null} IS NULL OR g.status = ${status      ?? null})
-      AND (${sectorSlug  ?? null} IS NULL OR s.slug   = ${sectorSlug  ?? null})
-      AND (${regionCode  ?? null} IS NULL
+      AND (${status      ?? null}::text IS NULL OR g.status::text = ${status      ?? null})
+      AND (${sectorSlug  ?? null}::text IS NULL OR s.slug   = ${sectorSlug  ?? null})
+      AND (${regionCode  ?? null}::text IS NULL
            OR ${regionCode ?? null} = ANY(g.eligible_regions)
            OR g.serves_statewide = true)
     GROUP BY g.id, f.name, f.slug
