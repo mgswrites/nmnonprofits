@@ -1,0 +1,90 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import { getPostBySlug } from '../../lib/queries';
+import { buildMetaTitle } from '../../lib/utils';
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/guides/');
+
+const post = await getPostBySlug(slug);
+if (!post) return Astro.redirect('/guides/', 301);
+
+const metaTitle  = buildMetaTitle(post.meta_title ?? post.title);
+const metaDesc   = post.meta_description ?? post.excerpt ?? undefined;
+const pubDate    = post.published_at
+  ? new Date(post.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  : null;
+---
+
+<Layout title={metaTitle} description={metaDesc}>
+
+  <!-- Breadcrumb -->
+  <nav class="container-content py-3 text-xs text-gray-400 flex gap-1.5 items-center">
+    <a href="/" class="hover:text-gray-600">Home</a>
+    <span>/</span>
+    <a href="/guides/" class="hover:text-gray-600">Guides</a>
+    <span>/</span>
+    <span class="text-gray-600 truncate">{post.title}</span>
+  </nav>
+
+  <!-- Hero image -->
+  {post.hero_image_url && (
+    <div class="w-full max-h-80 overflow-hidden bg-gray-100">
+      <img
+        src={post.hero_image_url}
+        alt={post.title}
+        width="1200"
+        height="480"
+        class="w-full h-full object-cover"
+        loading="eager"
+      />
+    </div>
+  )}
+
+  <!-- Article -->
+  <div class="container-content py-12">
+    <div class="max-w-3xl mx-auto">
+
+      <!-- Header -->
+      <header class="mb-10">
+        <h1 class="text-3xl md:text-4xl font-serif font-bold text-gray-900 leading-tight mb-4">
+          {post.title}
+        </h1>
+        {post.excerpt && (
+          <p class="text-lg text-gray-500 leading-relaxed mb-4">{post.excerpt}</p>
+        )}
+        <p class="text-sm text-gray-400">
+          {post.author_name}
+          {pubDate && <span> · {pubDate}</span>}
+        </p>
+        <div class="mt-6 border-t border-gray-100" />
+      </header>
+
+      <!-- Body -->
+      {post.content && (
+        <div class="prose prose-gray prose-lg max-w-none
+          prose-headings:font-serif prose-headings:text-gray-900
+          prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
+          prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+          prose-p:leading-relaxed prose-p:text-gray-700
+          prose-a:text-turquoise-700 prose-a:no-underline hover:prose-a:underline
+          prose-strong:text-gray-900
+          prose-ul:text-gray-700 prose-ol:text-gray-700
+          prose-li:my-1
+          prose-blockquote:border-turquoise-400 prose-blockquote:text-gray-600"
+          set:html={post.content}
+        />
+      )}
+
+      <!-- Back link -->
+      <div class="mt-14 pt-8 border-t border-gray-100">
+        <a href="/guides/" class="text-sm text-turquoise-700 hover:underline">
+          ← Back to all guides
+        </a>
+      </div>
+
+    </div>
+  </div>
+</Layout>
