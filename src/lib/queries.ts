@@ -159,11 +159,12 @@ export async function getGrantCards(opts: {
   sectorSlug?: string;
   regionCode?: NmRegion;
   status?: 'open' | 'rolling';
+  funderId?: number;
   limit?: number;
   offset?: number;
 } = {}): Promise<GrantCard[]> {
   const sql = getDb();
-  const { sectorSlug, regionCode, status, limit = 24, offset = 0 } = opts;
+  const { sectorSlug, regionCode, status, funderId, limit = 24, offset = 0 } = opts;
   return sql<GrantCard[]>`
     SELECT
       g.id, g.slug, g.title, g.deadline_date, g.status,
@@ -182,6 +183,7 @@ export async function getGrantCards(opts: {
     WHERE g.deleted_at IS NULL
       AND (${status      ?? null}::text IS NULL OR g.status::text = ${status      ?? null})
       AND (${sectorSlug  ?? null}::text IS NULL OR s.slug   = ${sectorSlug  ?? null})
+      AND (${funderId    ?? null}::int  IS NULL OR g.funder_id   = ${funderId  ?? null})
       AND (${regionCode  ?? null}::text IS NULL
            OR ${regionCode ?? null} = ANY(g.eligible_regions)
            OR g.serves_statewide = true)

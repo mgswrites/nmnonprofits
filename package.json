@@ -12,7 +12,8 @@
     "astro": "astro",
     "db:migrate": "node --env-file=.env --import=tsx/esm scripts/migrate.ts",
     "db:seed": "node --env-file=.env --import=tsx/esm scripts/seed.ts",
-    "db:seed-grants": "node --env-file=.env --import=tsx/esm scripts/seed-grants.ts"
+    "db:seed-grants": "node --env-file=.env --import=tsx/esm scripts/seed-grants.ts",
+    "db:seed-funders": "node --env-file=.env --import=tsx/esm scripts/seed-funders.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

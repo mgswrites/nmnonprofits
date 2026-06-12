@@ -1,0 +1,243 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import GrantCard from '../../components/grant/GrantCard.astro';
+import { getFunderBySlug, getGrantCards } from '../../lib/queries';
+import { getDb } from '../../lib/db';
+import { funderTypeLabel, formatCurrency, buildMetaTitle } from '../../lib/utils';
+import type { Sector } from '../../lib/types';
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/funders/');
+
+const funder = await getFunderBySlug(slug);
+if (!funder) return Astro.redirect('/funders/', 301);
+
+const sql = getDb();
+const [sectors, grants] = await Promise.all([
+  sql<Sector[]>`
+    SELECT s.* FROM sectors s
+    JOIN funder_sectors fs ON fs.sector_id = s.id
+    WHERE fs.funder_id = ${funder.id}
+    ORDER BY s.name
+  `,
+  getGrantCards({ funderId: funder.id, limit: 12 }),
+]);
+
+const metaTitle = buildMetaTitle(funder.meta_title ?? `${funder.name} — NM Funder`);
+const metaDesc  = funder.meta_description ?? funder.description ?? `${funder.name} is a grant-making organization in New Mexico.`;
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": funder.name,
+  "url": funder.website_url,
+  "description": funder.description,
+  "foundingDate": funder.year_founded?.toString(),
+  "telephone": funder.phone,
+  "email": funder.email,
+};
+---
+
+<Layout title={metaTitle} description={metaDesc}>
+  <script type="application/ld+json" slot="schema" set:html={JSON.stringify(schema)} />
+
+  <!-- Breadcrumb -->
+  <nav class="container-content py-3 text-xs text-gray-400 flex gap-1.5 items-center">
+    <a href="/" class="hover:text-gray-600">Home</a>
+    <span>/</span>
+    <a href="/funders/" class="hover:text-gray-600">Funders</a>
+    <span>/</span>
+    <span class="text-gray-600 truncate">{funder.name}</span>
+  </nav>
+
+  <!-- Header -->
+  <div class="bg-white border-b border-gray-100">
+    <div class="container-content py-8 md:py-12">
+      <div class="flex items-start gap-4">
+        {funder.logo_url && (
+          <img
+            src={funder.logo_url}
+            alt={`${funder.name} logo`}
+            width="72"
+            height="72"
+            class="w-16 h-16 md:w-18 md:h-18 rounded-xl object-contain bg-gray-50 border border-gray-100 shrink-0"
+          />
+        )}
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            <span class="badge bg-turquoise-50 text-turquoise-700 border border-turquoise-100">
+              {funderTypeLabel(funder.funder_type)}
+            </span>
+            {funder.is_verified && (
+              <span class="badge bg-green-50 text-green-700 border border-green-100">Verified</span>
+            )}
+          </div>
+          <h1 class="text-2xl md:text-3xl font-serif font-bold text-gray-900 leading-tight">
+            {funder.name}
+          </h1>
+          {funder.year_founded && (
+            <p class="text-sm text-gray-400 mt-1">Est. {funder.year_founded}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="container-content py-10">
+    <div class="flex flex-col lg:flex-row gap-10">
+
+      <!-- Main content -->
+      <div class="flex-1 min-w-0 space-y-10">
+
+        <!-- About -->
+        {funder.description && (
+          <section>
+            <h2 class="text-lg font-serif font-semibold text-gray-900 mb-3">About</h2>
+            <p class="text-gray-700 leading-relaxed">{funder.description}</p>
+            {funder.full_description && (
+              <p class="text-gray-700 leading-relaxed mt-3">{funder.full_description}</p>
+            )}
+          </section>
+        )}
+
+        <!-- Application process -->
+        {funder.application_process && (
+          <section>
+            <h2 class="text-lg font-serif font-semibold text-gray-900 mb-3">How to Apply</h2>
+            <p class="text-gray-700 leading-relaxed">{funder.application_process}</p>
+          </section>
+        )}
+
+        <!-- Active grants -->
+        {grants.length > 0 && (
+          <section>
+            <h2 class="text-lg font-serif font-semibold text-gray-900 mb-4">
+              Active Grant Opportunities
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {grants.map((g) => <GrantCard grant={g} />)}
+            </div>
+          </section>
+        )}
+
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="lg:w-72 shrink-0 space-y-6">
+
+        <!-- CTA -->
+        <div class="bg-turquoise-50 border border-turquoise-100 rounded-xl p-5 space-y-3">
+          {funder.grants_page_url && (
+            <a
+              href={funder.grants_page_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-primary w-full justify-center text-center block"
+            >
+              View Grant Applications
+            </a>
+          )}
+          {funder.website_url && (
+            <a
+              href={funder.website_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-secondary w-full justify-center text-center block"
+            >
+              Visit Website
+            </a>
+          )}
+        </div>
+
+        <!-- Quick facts -->
+        <div class="card p-5 space-y-4">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Quick Facts</h3>
+
+          {funder.annual_giving && (
+            <div>
+              <p class="text-xs text-gray-400">Annual Giving</p>
+              <p class="text-sm font-semibold text-gray-800">{formatCurrency(funder.annual_giving)}</p>
+            </div>
+          )}
+
+          {(funder.min_grant || funder.max_grant) && (
+            <div>
+              <p class="text-xs text-gray-400">Grant Range</p>
+              <p class="text-sm font-semibold text-gray-800">
+                {funder.min_grant && funder.max_grant
+                  ? `${formatCurrency(funder.min_grant)} – ${formatCurrency(funder.max_grant)}`
+                  : funder.max_grant
+                    ? `Up to ${formatCurrency(funder.max_grant)}`
+                    : `From ${formatCurrency(funder.min_grant)}`}
+              </p>
+            </div>
+          )}
+
+          {funder.accepts_unsolicited !== null && (
+            <div>
+              <p class="text-xs text-gray-400">Accepts Unsolicited Requests</p>
+              <p class="text-sm font-semibold text-gray-800">
+                {funder.accepts_unsolicited ? 'Yes' : 'No — invitation only'}
+              </p>
+            </div>
+          )}
+
+          {funder.year_founded && (
+            <div>
+              <p class="text-xs text-gray-400">Founded</p>
+              <p class="text-sm font-semibold text-gray-800">{funder.year_founded}</p>
+            </div>
+          )}
+
+          {funder.ein && (
+            <div>
+              <p class="text-xs text-gray-400">EIN</p>
+              <p class="text-sm font-semibold text-gray-800">{funder.ein}</p>
+            </div>
+          )}
+        </div>
+
+        <!-- Sectors funded -->
+        {sectors.length > 0 && (
+          <div class="card p-5">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Issue Areas Funded</h3>
+            <div class="flex flex-wrap gap-2">
+              {sectors.map((s) => (
+                <a
+                  href={`/grants/?sector=${s.slug}`}
+                  class="badge bg-gray-100 text-gray-700 hover:bg-turquoise-50 hover:text-turquoise-700 transition-colors"
+                >
+                  {s.name}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Contact -->
+        {(funder.phone || funder.email || funder.contact_name) && (
+          <div class="card p-5 space-y-3">
+            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Contact</h3>
+            {funder.contact_name && (
+              <p class="text-sm text-gray-700">{funder.contact_name}</p>
+            )}
+            {funder.phone && (
+              <a href={`tel:${funder.phone}`} class="text-sm text-turquoise-700 hover:underline block">
+                {funder.phone}
+              </a>
+            )}
+            {funder.email && (
+              <a href={`mailto:${funder.email}`} class="text-sm text-turquoise-700 hover:underline block break-all">
+                {funder.email}
+              </a>
+            )}
+          </div>
+        )}
+
+      </aside>
+    </div>
+  </div>
+</Layout>
