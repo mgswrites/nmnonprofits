@@ -11,6 +11,34 @@ const [featuredListings, openGrants, sectors, cities] = await Promise.all([
   getCitiesWithOrgs(),
 ]);
 
+const sectorImages: Record<string, string> = {
+  'animal-welfare':           '5Rug51UizG0',
+  'arts-culture':             'LGcVVAYPLXo',
+  'civic-engagement':         'P8QgGU2y3Ps',
+  'economic-development':     'SwJc84JKwxc',
+  'education-youth':          'rDowC8HK1BQ',
+  'environment-conservation': 'Y3L8ZKU73Gg',
+  'food-agriculture':         'jR-9M5C9a2A',
+  'health-human-services':    'mYAtldFBSaw',
+  'housing-homelessness':     'SqslSHi0NMw',
+  'immigration-refugee':      'rj943dUvpWI',
+  'indigenous-communities':   '1515168746408-0f924dbb5c39',
+  'substance-use-recovery':   'GUqDKefYx5I',
+};
+
+const cityImages: Record<string, string> = {
+  'albuquerque': 'Y1WzhGASD10',
+  'santa-fe':    '3snKY0XMKwg',
+  'taos':        'hiurD_9ukfA',
+  'las-cruces':  'yB29SGGBMi8',
+  'gallup':      'trGP1DdqAlU',
+  'silver-city': 'iQUzfZicrZM',
+  'las-vegas':   '9-WVTrFrlWI',
+};
+
+const u = (id: string) =>
+  `https://images.unsplash.com/photo-${id}?w=400&h=224&fit=crop&auto=format&q=80`;
+
 const cityLinks = [
   { label: 'Albuquerque',   href: '/nonprofits/?city=albuquerque' },
   { label: 'Santa Fe',      href: '/nonprofits/?city=santa-fe' },
@@ -92,7 +120,7 @@ const cityLinks = [
           >
             <div class="h-28 overflow-hidden">
               <img
-                src={`https://picsum.photos/seed/${s.slug}/400/224`}
+                src={u(sectorImages[s.slug] ?? 'Y3L8ZKU73Gg')}
                 alt={s.name}
                 width="400"
                 height="224"
@@ -126,7 +154,7 @@ const cityLinks = [
           >
             <div class="h-28 overflow-hidden">
               <img
-                src={`https://picsum.photos/seed/${c.slug}-nm/400/224`}
+                src={u(cityImages[c.slug] ?? 'iQUzfZicrZM')}
                 alt={c.name}
                 width="400"
                 height="224"
