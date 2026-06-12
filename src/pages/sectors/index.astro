@@ -3,6 +3,21 @@ import Layout from '../../layouts/Layout.astro';
 import { getSectorSummaries } from '../../lib/queries';
 
 const sectors = await getSectorSummaries();
+
+const sectorImg: Record<string, string> = {
+  'animal-welfare':           '/images/sectors/animal-welfare.jpg',
+  'arts-culture':             '/images/sectors/arts-culture.jpg',
+  'civic-engagement':         '/images/sectors/civic-engagement.jpg',
+  'economic-development':     '/images/sectors/economic-development.jpg',
+  'education-youth':          '/images/sectors/education-youth.jpg',
+  'environment-conservation': '/images/sectors/environment-conservation.jpg',
+  'food-agriculture':         '/images/sectors/food-agriculture.jpg',
+  'health-human-services':    '/images/sectors/health-human-services.jpg',
+  'housing-homelessness':     '/images/sectors/housing-homelessness.jpg',
+  'immigration-refugee':      '/images/sectors/immigration-refugee.jpg',
+  'indigenous-communities':   '/images/sectors/indigenous-communities.jpg',
+  'substance-use-recovery':   '/images/sectors/substance-use-recovery.jpg',
+};
 ---
 
 <Layout
@@ -13,17 +28,32 @@ const sectors = await getSectorSummaries();
     <h1 class="text-3xl font-serif font-bold mb-2">Issue Areas</h1>
     <p class="text-gray-500 mb-10">Browse New Mexico's nonprofit ecosystem by cause area</p>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
       {sectors.map((s) => (
-        <a href={`/nonprofits/${s.slug}/`} class="card p-6 flex flex-col gap-2 group">
-          <h2 class="font-serif font-semibold text-lg text-gray-900 group-hover:text-turquoise-700 transition-colors">
-            {s.name}
-          </h2>
-          <div class="flex gap-4 text-sm text-gray-500 mt-auto">
-            <span>{s.org_count} nonprofits</span>
-            {s.active_grant_count > 0 && (
-              <span class="text-turquoise-700 font-medium">{s.active_grant_count} open grants</span>
-            )}
+        <a
+          href={`/nonprofits/?sector=${s.slug}`}
+          class="rounded-xl overflow-hidden bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all group"
+        >
+          <div class="h-36 overflow-hidden">
+            <img
+              src={sectorImg[s.slug] ?? '/images/sectors/environment-conservation.jpg'}
+              alt={s.name}
+              width="400"
+              height="288"
+              loading="lazy"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          </div>
+          <div class="p-4">
+            <h2 class="font-semibold text-gray-900 group-hover:text-turquoise-700 transition-colors leading-snug">
+              {s.name}
+            </h2>
+            <div class="flex flex-wrap gap-3 text-xs text-gray-400 mt-1.5">
+              <span>{s.org_count} nonprofits</span>
+              {s.active_grant_count > 0 && (
+                <span class="text-turquoise-600 font-medium">{s.active_grant_count} open grants</span>
+              )}
+            </div>
           </div>
         </a>
       ))}
