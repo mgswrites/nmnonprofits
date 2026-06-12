@@ -11,36 +11,30 @@ const [featuredListings, openGrants, sectors, cities] = await Promise.all([
   getCitiesWithOrgs(),
 ]);
 
-type Photo = { id: string; author: string };
-
-const sectorPhotos: Record<string, Photo> = {
-  'animal-welfare':           { id: 'ouo1hbizWwo', author: 'Andrew S' },
-  'arts-culture':             { id: 'LGcVVAYPLXo', author: 'Planet Volumes' },
-  'civic-engagement':         { id: 'P8QgGU2y3Ps', author: 'Kamran Abdullayev' },
-  'economic-development':     { id: 'qvWnGmoTbik', author: 'Tim Mossholder' },
-  'education-youth':          { id: 'GDokEYnOfnE', author: 'CDC' },
-  'environment-conservation': { id: 'Y3L8ZKU73Gg', author: 'Allec Gomes' },
-  'food-agriculture':         { id: 'HkbeLxOJlqk', author: 'Aaron Doucett' },
-  'health-human-services':    { id: 'tl447mekwuQ', author: 'National Cancer Institute' },
-  'housing-homelessness':     { id: 'SqslSHi0NMw', author: 'Karolina Grabowska' },
-  'immigration-refugee':      { id: 'rj943dUvpWI', author: 'Curated Lifestyle' },
-  'indigenous-communities':   { id: 'WzmEp4CwV6c', author: 'Josh Hild' },
-  'substance-use-recovery':   { id: 'GUqDKefYx5I', author: 'Andrej Lišakov' },
+const sectorImg: Record<string, string> = {
+  'animal-welfare':           '/images/sectors/animal-welfare.jpg',
+  'arts-culture':             '/images/sectors/arts-culture.jpg',
+  'civic-engagement':         '/images/sectors/civic-engagement.jpg',
+  'economic-development':     '/images/sectors/economic-development.jpg',
+  'education-youth':          '/images/sectors/education-youth.jpg',
+  'environment-conservation': '/images/sectors/environment-conservation.jpg',
+  'food-agriculture':         '/images/sectors/food-agriculture.jpg',
+  'health-human-services':    '/images/sectors/health-human-services.jpg',
+  'housing-homelessness':     '/images/sectors/housing-homelessness.jpg',
+  'immigration-refugee':      '/images/sectors/immigration-refugee.jpg',
+  'indigenous-communities':   '/images/sectors/indigenous-communities.jpg',
+  'substance-use-recovery':   '/images/sectors/substance-use-recovery.jpg',
 };
 
-const cityPhotos: Record<string, Photo> = {
-  'albuquerque': { id: 'zhEk0x9OOhw', author: 'Nicole Geri' },
-  'santa-fe':    { id: '3snKY0XMKwg', author: 'Jezael Melgoza' },
-  'taos':        { id: 'hiurD_9ukfA', author: 'Colin + Meg' },
-  'las-cruces':  { id: 'yB29SGGBMi8', author: 'Josh Hild' },
-  'gallup':      { id: 'trGP1DdqAlU', author: 'Anderson Schmig' },
-  'silver-city': { id: 'iQUzfZicrZM', author: 'Joshua Earle' },
-  'las-vegas':   { id: '9-WVTrFrlWI', author: 'Robert Murray' },
+const cityImg: Record<string, string> = {
+  'albuquerque': '/images/cities/albuquerque.jpg',
+  'santa-fe':    '/images/cities/santa-fe.jpg',
+  'taos':        '/images/cities/taos.jpg',
+  'las-cruces':  '/images/cities/las-cruces.jpg',
+  'gallup':      '/images/cities/gallup.jpg',
+  'silver-city': '/images/cities/silver-city.jpg',
+  'las-vegas':   '/images/cities/las-vegas.jpg',
 };
-
-const fallback: Photo = { id: 'Y3L8ZKU73Gg', author: 'Allec Gomes' };
-const u = (p: Photo) =>
-  `https://images.unsplash.com/photo-${p.id}?w=400&h=224&fit=crop&auto=format&q=80`;
 
 const cityLinks = [
   { label: 'Albuquerque',   href: '/nonprofits/?city=albuquerque' },
@@ -116,35 +110,29 @@ const cityLinks = [
       <p class="text-center text-gray-500 text-sm mb-10">Explore nonprofits and funders by the causes they serve</p>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {sectors.map((s) => {
-          const p = sectorPhotos[s.slug] ?? fallback;
-          return (
-            <a
-              href={`/nonprofits/${s.slug}/`}
-              class="rounded-xl overflow-hidden bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all group"
-            >
-              <div class="h-28 overflow-hidden relative">
-                <img
-                  src={u(p)}
-                  alt={s.name}
-                  width="400"
-                  height="224"
-                  loading="lazy"
-                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <span class="absolute bottom-0 right-0 bg-black/50 text-white text-[9px] px-1.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  {p.author} / Unsplash
-                </span>
-              </div>
-              <div class="p-3 text-center">
-                <span class="text-sm font-semibold text-gray-800 group-hover:text-turquoise-700 transition-colors leading-snug block">
-                  {s.name}
-                </span>
-                <span class="text-xs text-gray-400 mt-1 block">{s.org_count} orgs</span>
-              </div>
-            </a>
-          );
-        })}
+        {sectors.map((s) => (
+          <a
+            href={`/nonprofits/${s.slug}/`}
+            class="rounded-xl overflow-hidden bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all group"
+          >
+            <div class="h-28 overflow-hidden">
+              <img
+                src={sectorImg[s.slug] ?? '/images/sectors/environment-conservation.jpg'}
+                alt={s.name}
+                width="400"
+                height="224"
+                loading="lazy"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div class="p-3 text-center">
+              <span class="text-sm font-semibold text-gray-800 group-hover:text-turquoise-700 transition-colors leading-snug block">
+                {s.name}
+              </span>
+              <span class="text-xs text-gray-400 mt-1 block">{s.org_count} orgs</span>
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   </section>
@@ -156,35 +144,29 @@ const cityLinks = [
       <p class="text-center text-gray-500 text-sm mb-10">Find nonprofits serving your community</p>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {cities.map((c) => {
-          const p = cityPhotos[c.slug] ?? fallback;
-          return (
-            <a
-              href={`/nonprofits/?city=${c.slug}`}
-              class="rounded-xl overflow-hidden bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all group"
-            >
-              <div class="h-28 overflow-hidden relative">
-                <img
-                  src={u(p)}
-                  alt={c.name}
-                  width="400"
-                  height="224"
-                  loading="lazy"
-                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <span class="absolute bottom-0 right-0 bg-black/50 text-white text-[9px] px-1.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  {p.author} / Unsplash
-                </span>
-              </div>
-              <div class="p-3 text-center">
-                <span class="text-sm font-semibold text-gray-800 group-hover:text-turquoise-700 transition-colors leading-snug block">
-                  {c.name}
-                </span>
-                <span class="text-xs text-gray-400 mt-1 block">{c.org_count} orgs</span>
-              </div>
-            </a>
-          );
-        })}
+        {cities.map((c) => (
+          <a
+            href={`/nonprofits/?city=${c.slug}`}
+            class="rounded-xl overflow-hidden bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all group"
+          >
+            <div class="h-28 overflow-hidden">
+              <img
+                src={cityImg[c.slug] ?? '/images/cities/albuquerque.jpg'}
+                alt={c.name}
+                width="400"
+                height="224"
+                loading="lazy"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div class="p-3 text-center">
+              <span class="text-sm font-semibold text-gray-800 group-hover:text-turquoise-700 transition-colors leading-snug block">
+                {c.name}
+              </span>
+              <span class="text-xs text-gray-400 mt-1 block">{c.org_count} orgs</span>
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   </section>
