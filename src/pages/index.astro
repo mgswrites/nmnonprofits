@@ -112,7 +112,7 @@ const cityLinks = [
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {sectors.map((s) => (
           <a
-            href={`/nonprofits/${s.slug}/`}
+            href={`/nonprofits/?sector=${s.slug}`}
             class="rounded-xl overflow-hidden bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all group"
           >
             <div class="h-28 overflow-hidden">
@@ -217,7 +217,7 @@ const cityLinks = [
         </p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
           <a href="/submit/" class="btn-primary bg-zia-600 hover:bg-zia-500">Submit Your Organization</a>
-          <a href="/guides/listing-tiers/" class="btn-secondary border-turquoise-600 bg-transparent text-white hover:bg-white/10">See pricing</a>
+          <a href="/guides/" class="btn-secondary border-turquoise-600 bg-transparent text-white hover:bg-white/10">See pricing</a>
         </div>
       </div>
     </div>
