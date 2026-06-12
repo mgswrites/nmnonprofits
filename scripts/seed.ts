@@ -193,6 +193,17 @@ const ORGS: OrgSeed[] = [
 
   // ── HEALTH & HUMAN SERVICES ─────────────────────────────────────────────────
   {
+    name: 'Anchorum Health Foundation',
+    org_type: 'private_foundation',
+    city_name: 'Santa Fe',
+    city_slug: 'santa-fe',
+    region_code: 'northern_nm',
+    website_url: 'https://anchorum.org',
+    mission: "Santa Fe-based health foundation investing in community health, behavioral health, and health equity for New Mexicans — with a focus on those most underserved.",
+    sectors: ['health-human-services'],
+    serves_statewide: true,
+  },
+  {
     name: 'La Familia Medical Center',
     org_type: 'nonprofit_501c3',
     city_name: 'Santa Fe',
