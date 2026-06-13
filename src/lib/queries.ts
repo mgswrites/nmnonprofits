@@ -64,6 +64,7 @@ export async function getListingBySlug(slug: string): Promise<Listing | null> {
 }
 
 export async function getListingCards(opts: {
+  q?: string;
   sectorSlug?: string;
   citySlug?: string;
   regionCode?: NmRegion;
@@ -71,11 +72,9 @@ export async function getListingCards(opts: {
   offset?: number;
 }): Promise<ListingCard[]> {
   const sql = getDb();
-  const { sectorSlug, citySlug, regionCode, limit = 24, offset = 0 } = opts;
+  const { q, sectorSlug, citySlug, regionCode, limit = 100, offset = 0 } = opts;
+  const search = q ? `%${q}%` : null;
 
-  // Build the query dynamically — Neon tagged templates don't support
-  // conditional fragments, so we use sql.transaction or raw params.
-  // Here we use a join + WHERE approach that is always valid.
   return sql<ListingCard[]>`
     SELECT
       l.id, l.slug, l.name, l.mission, l.city_name, l.region_code,
@@ -92,6 +91,7 @@ export async function getListingCards(opts: {
     LEFT JOIN cities c           ON c.id = l.city_id
     WHERE l.deleted_at IS NULL
       AND l.status = 'approved'
+      AND (${search}::text IS NULL OR l.name ILIKE ${search} OR l.mission ILIKE ${search})
       AND (${sectorSlug ?? null}::text IS NULL OR s.slug = ${sectorSlug ?? null})
       AND (${citySlug   ?? null}::text IS NULL OR c.slug = ${citySlug   ?? null})
       AND (${regionCode ?? null}::text IS NULL OR l.region_code::text = ${regionCode ?? null})

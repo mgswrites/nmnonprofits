@@ -11,11 +11,11 @@ const sectorSlug = Astro.url.searchParams.get('sector') ?? undefined;
 const citySlug   = Astro.url.searchParams.get('city')   ?? undefined;
 const regionCode = (Astro.url.searchParams.get('region') ?? undefined) as NmRegion | undefined;
 const page       = Math.max(1, parseInt(Astro.url.searchParams.get('page') ?? '1', 10));
-const limit      = 24;
+const limit      = 100;
 const offset     = (page - 1) * limit;
 
 const [listings, sectors, cities] = await Promise.all([
-  getListingCards({ sectorSlug, citySlug, regionCode, limit, offset }),
+  getListingCards({ q, sectorSlug, citySlug, regionCode, limit, offset }),
   getAllSectors(),
   getAllCities(),
 ]);
