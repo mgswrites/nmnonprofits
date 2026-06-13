@@ -25,7 +25,7 @@ const [sectors, grants] = await Promise.all([
   getGrantCards({ funderId: funder.id, limit: 12 }),
 ]);
 
-const metaTitle = buildMetaTitle(funder.meta_title ?? `${funder.name} — NM Funder`);
+const metaTitle = buildMetaTitle(funder.meta_title ?? `${funder.name} | NM Funder`);
 const metaDesc  = funder.meta_description ?? funder.description ?? `${funder.name} is a grant-making organization in New Mexico.`;
 
 const schema = {
@@ -180,7 +180,7 @@ const schema = {
             <div>
               <p class="text-xs text-gray-400">Accepts Unsolicited Requests</p>
               <p class="text-sm font-semibold text-gray-800">
-                {funder.accepts_unsolicited ? 'Yes' : 'No — invitation only'}
+                {funder.accepts_unsolicited ? 'Yes' : 'No, by invitation only'}
               </p>
             </div>
           )}

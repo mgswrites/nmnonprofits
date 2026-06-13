@@ -22,7 +22,7 @@ const sectors = await sql<Sector[]>`
   ORDER BY ls.is_primary DESC, s.name
 `;
 
-const metaTitle = buildMetaTitle(listing.meta_title ?? `${listing.name} — New Mexico Nonprofit`);
+const metaTitle = buildMetaTitle(listing.meta_title ?? `${listing.name} | New Mexico Nonprofit`);
 const metaDesc  = listing.meta_description ?? listing.mission ?? `${listing.name} is a nonprofit organization in New Mexico.`;
 
 // Schema.org NGO markup

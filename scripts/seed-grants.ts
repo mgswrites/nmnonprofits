@@ -151,7 +151,7 @@ const GRANTS: GrantSeed[] = [
     sectors: ['health-human-services', 'education-youth', 'arts-culture', 'environment-conservation', 'economic-development', 'indigenous-communities'],
   },
   {
-    title: 'Community Foundation of Southern NM — Devasthali Family Foundation Grant',
+    title: 'Community Foundation of Southern NM: Devasthali Family Foundation Grant',
     funder_name: 'Community Foundation of Southern New Mexico',
     description: 'Grants of $1,500–$4,000 for nonprofits supporting arts, education, and child hunger across 12 counties of southern New Mexico. The fall 2026 cycle runs August 1–October 5. Eligible counties: Catron, Chaves, Doña Ana, Eddy, Grant, Hidalgo, Lea, Lincoln, Luna, Otero, Sierra, and Socorro.',
     min_amount: 1500,
@@ -164,7 +164,7 @@ const GRANTS: GrantSeed[] = [
     sectors: ['arts-culture', 'education-youth', 'food-agriculture'],
   },
   {
-    title: 'Community Foundation of Southern NM — Wellness Fund Grant',
+    title: 'Community Foundation of Southern NM: Wellness Fund Grant',
     funder_name: 'Community Foundation of Southern New Mexico',
     description: 'Annual grants of $3,000–$10,000 (up to $30,000 multi-year) to nonprofits improving maternal and child health and wellness outcomes in southern New Mexico. Eligible counties include Doña Ana, Hidalgo, Grant, Lincoln, Luna, Otero, and Sierra. The fall 2026 cycle runs August 1–October 5.',
     min_amount: 3000,
@@ -242,7 +242,7 @@ const GRANTS: GrantSeed[] = [
     sectors: ['food-agriculture', 'economic-development', 'health-human-services', 'environment-conservation'],
   },
   {
-    title: 'USDA Rural Business Development Grants — New Mexico',
+    title: 'USDA Rural Business Development Grants: New Mexico',
     funder_name: 'USDA Rural Development',
     description: 'Federal grants for public bodies, federally recognized tribes, and nonprofit entities primarily serving rural areas of New Mexico to promote economic development and job creation. Smaller requests receive higher priority. Check the USDA New Mexico state office for the next cycle announcement.',
     min_amount: null,
@@ -281,7 +281,7 @@ const GRANTS: GrantSeed[] = [
     sectors: ['arts-culture', 'economic-development'],
   },
   {
-    title: 'AARP Community Challenge Grants — New Mexico',
+    title: 'AARP Community Challenge Grants: New Mexico',
     funder_name: 'AARP',
     description: 'Quick-action grants for 501(c)(3), 501(c)(4), and 501(c)(6) nonprofits and government entities in New Mexico to improve livability by enhancing public places, transportation, housing, digital connections, and disaster resilience. Flagship awards range up to $15,000; capacity-building microgrants are $2,500. The 2027 cycle typically opens in January.',
     min_amount: 250,

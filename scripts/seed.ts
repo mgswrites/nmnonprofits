@@ -241,7 +241,7 @@ const ORGS: OrgSeed[] = [
     address_line1: '309 Read St',
     zip_code: '87501',
     phone: '(505) 989-3336',
-    mission: "Santa Fe-based health foundation investing in community health, behavioral health, and health equity for New Mexicans — with a focus on those most underserved.",
+    mission: "Santa Fe-based health foundation investing in community health, behavioral health, and health equity for New Mexicans, with a focus on those most underserved.",
     sectors: ['health-human-services'],
     serves_statewide: true,
   },
@@ -353,7 +353,7 @@ const ORGS: OrgSeed[] = [
     address_line1: '14 Millers End',
     zip_code: '87508',
     phone: null,
-    mission: "Global recovery community for women and non-binary people navigating addiction, mental health, and trauma — headquartered in Santa Fe.",
+    mission: "Global recovery community for women and non-binary people navigating addiction, mental health, and trauma, headquartered in Santa Fe.",
     sectors: ['substance-use-recovery', 'health-human-services'],
     serves_statewide: true,
   },
@@ -716,7 +716,7 @@ const ORGS: OrgSeed[] = [
 
   // ── INDIGENOUS COMMUNITIES ─────────────────────────────────────────────────
   {
-    name: 'NAEVA — New Mexico Alliance for Environmental Action',
+    name: 'NAEVA: New Mexico Alliance for Environmental Action',
     org_type: 'nonprofit_501c3',
     city_name: 'Albuquerque',
     city_slug: 'albuquerque',
@@ -739,7 +739,7 @@ const ORGS: OrgSeed[] = [
     address_line1: '10010 Indian School Rd NE',
     zip_code: '87112',
     phone: '(505) 881-4584',
-    mission: "Scholarships, mentorship, and graduate fellowships for Indigenous students pursuing higher education — the nation's largest Indigenous scholarship fund.",
+    mission: "Scholarships, mentorship, and graduate fellowships for Indigenous students pursuing higher education, the nation's largest Indigenous scholarship fund.",
     sectors: ['indigenous-communities', 'education-youth'],
     serves_statewide: true,
   },

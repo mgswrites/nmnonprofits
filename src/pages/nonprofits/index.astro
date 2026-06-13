@@ -21,7 +21,7 @@ const [listings, sectors, cities] = await Promise.all([
 ]);
 
 const title = sectorSlug
-  ? `${sectors.find((s) => s.slug === sectorSlug)?.name ?? 'Sector'} Nonprofits — New Mexico`
+  ? `${sectors.find((s) => s.slug === sectorSlug)?.name ?? 'Sector'} Nonprofits | New Mexico`
   : 'New Mexico Nonprofits Directory';
 ---
 

@@ -353,7 +353,7 @@ const FUNDERS: FunderSeed[] = [
     funds_national: true,
     year_founded: 1963,
     ein: '52-0794300',
-    description: 'National charitable affiliate of AARP. The Community Challenge grant program funds quick-action projects nationwide — including in New Mexico — that create vibrant, livable communities for people of all ages by improving public spaces, transportation, housing, digital inclusion, and disaster resilience.',
+    description: 'National charitable affiliate of AARP. The Community Challenge grant program funds quick-action projects nationwide, including in New Mexico, that create vibrant, livable communities for people of all ages by improving public spaces, transportation, housing, digital inclusion, and disaster resilience.',
     website_url: 'https://www.aarp.org/livable-communities/community-challenge/',
     grants_page_url: 'https://www.aarp.org/livable-communities/community-challenge/',
     phone: null,
@@ -388,7 +388,7 @@ const FUNDERS: FunderSeed[] = [
   },
   {
     slug: 'usda-rural-development-nm',
-    name: 'USDA Rural Development — New Mexico',
+    name: 'USDA Rural Development: New Mexico',
     funder_type: 'federal_pass_through',
     region_code: 'statewide',
     funds_statewide: true,
