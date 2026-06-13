@@ -101,7 +101,9 @@ const schema = {
           <section>
             <h2 class="text-xl font-serif font-semibold mb-3">About</h2>
             <div class="prose prose-sm max-w-none text-gray-700">
-              {listing.full_description}
+              {listing.full_description.split('\n\n').map((p: string) => (
+                <p>{p.trim()}</p>
+              ))}
             </div>
           </section>
         )}
