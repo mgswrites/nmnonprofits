@@ -104,11 +104,14 @@ const cityLinks = [
   </section>
 
   <!-- Sector grid -->
-  <section class="py-16 bg-gray-50">
-    <div class="container-content">
-      <h2 class="section-header text-center">Browse by Issue Area</h2>
-      <p class="text-center text-gray-500 text-sm mb-10">Explore nonprofits and funders by the causes they serve</p>
-
+  <section class="bg-gray-50">
+    <div class="bg-turquoise-800 py-8">
+      <div class="container-content text-center">
+        <h2 class="text-white font-serif text-2xl font-semibold mb-1">Browse by Issue Area</h2>
+        <p class="text-turquoise-200 text-sm">Explore nonprofits and funders by the causes they serve</p>
+      </div>
+    </div>
+    <div class="container-content py-10">
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {sectors.map((s) => (
           <a
@@ -138,11 +141,14 @@ const cityLinks = [
   </section>
 
   <!-- Browse by City -->
-  <section class="py-16">
-    <div class="container-content">
-      <h2 class="section-header text-center">Browse by City</h2>
-      <p class="text-center text-gray-500 text-sm mb-10">Find nonprofits serving your community</p>
-
+  <section>
+    <div class="bg-zia-700 py-8">
+      <div class="container-content text-center">
+        <h2 class="text-white font-serif text-2xl font-semibold mb-1">Browse by City</h2>
+        <p class="text-zia-200 text-sm">Find nonprofits serving your community</p>
+      </div>
+    </div>
+    <div class="container-content py-10">
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {cities.map((c) => (
           <a
@@ -173,15 +179,17 @@ const cityLinks = [
 
   <!-- Featured nonprofits -->
   {featuredListings.length > 0 && (
-    <section class="py-16">
-      <div class="container-content">
-        <div class="flex items-end justify-between mb-8">
+    <section class="bg-gray-50">
+      <div class="bg-turquoise-700 py-8">
+        <div class="container-content flex items-center justify-between">
           <div>
-            <h2 class="section-header">Featured Nonprofits</h2>
-            <p class="text-gray-500 text-sm">Organizations making a difference across New Mexico</p>
+            <h2 class="text-white font-serif text-2xl font-semibold mb-1">Featured Nonprofits</h2>
+            <p class="text-turquoise-200 text-sm">Organizations making a difference across New Mexico</p>
           </div>
-          <a href="/nonprofits/" class="btn-secondary text-sm">View all</a>
+          <a href="/nonprofits/" class="btn-secondary border-turquoise-400 bg-transparent text-white hover:bg-white/10 text-sm shrink-0">View all</a>
         </div>
+      </div>
+      <div class="container-content py-10">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {featuredListings.map((l) => <ListingCard listing={l} />)}
         </div>
@@ -191,15 +199,17 @@ const cityLinks = [
 
   <!-- Open grants -->
   {openGrants.length > 0 && (
-    <section class="py-16 bg-gray-50">
-      <div class="container-content">
-        <div class="flex items-end justify-between mb-8">
+    <section>
+      <div class="bg-zia-800 py-8">
+        <div class="container-content flex items-center justify-between">
           <div>
-            <h2 class="section-header">Open Grant Opportunities</h2>
-            <p class="text-gray-500 text-sm">Active funding available for NM nonprofits</p>
+            <h2 class="text-white font-serif text-2xl font-semibold mb-1">Open Grant Opportunities</h2>
+            <p class="text-zia-200 text-sm">Active funding available for NM nonprofits</p>
           </div>
-          <a href="/grants/" class="btn-secondary text-sm">View all grants</a>
+          <a href="/grants/" class="btn-secondary border-zia-600 bg-transparent text-white hover:bg-white/10 text-sm shrink-0">View all grants</a>
         </div>
+      </div>
+      <div class="container-content py-10">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {openGrants.map((g) => <GrantCard grant={g} />)}
         </div>
