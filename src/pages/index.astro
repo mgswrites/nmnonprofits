@@ -37,14 +37,14 @@ const cityImg: Record<string, string> = {
 };
 
 const cityLinks = [
-  { label: 'Albuquerque',   href: '/nonprofits/?city=albuquerque' },
-  { label: 'Santa Fe',      href: '/nonprofits/?city=santa-fe' },
-  { label: 'Las Cruces',    href: '/nonprofits/?city=las-cruces' },
-  { label: 'Taos',          href: '/nonprofits/?city=taos' },
-  { label: 'Las Vegas, NM', href: '/nonprofits/?city=las-vegas' },
+  { label: 'Albuquerque',   href: '/cities/albuquerque/' },
+  { label: 'Santa Fe',      href: '/cities/santa-fe/' },
+  { label: 'Las Cruces',    href: '/cities/las-cruces/' },
+  { label: 'Taos',          href: '/cities/taos/' },
+  { label: 'Las Vegas, NM', href: '/cities/las-vegas/' },
   { label: 'Farmington',    href: '/nonprofits/?city=farmington' },
   { label: 'Roswell',       href: '/nonprofits/?city=roswell' },
-  { label: 'Gallup',        href: '/nonprofits/?city=gallup' },
+  { label: 'Gallup',        href: '/cities/gallup/' },
 ];
 ---
 
@@ -152,7 +152,7 @@ const cityLinks = [
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {cities.map((c) => (
           <a
-            href={`/nonprofits/?city=${c.slug}`}
+            href={`/cities/${c.slug}/`}
             class="rounded-xl overflow-hidden bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all group"
           >
             <div class="h-28 overflow-hidden">
