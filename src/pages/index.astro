@@ -66,8 +66,17 @@ const cityLinks = [
   })} />
 
   <!-- Hero -->
-  <section class="bg-gradient-to-br from-turquoise-900 via-turquoise-800 to-turquoise-700 text-white">
-    <div class="container-content py-20 md:py-28 text-center">
+  <section class="relative text-white overflow-hidden">
+    <img
+      src="/images/hero-homepage.jpg"
+      alt="New Mexico high desert landscape at golden hour"
+      class="absolute inset-0 w-full h-full object-cover object-center"
+      width="1920"
+      height="1280"
+      fetchpriority="high"
+    />
+    <div class="absolute inset-0 bg-turquoise-900/80" />
+    <div class="relative container-content py-20 md:py-28 text-center">
       <p class="text-turquoise-300 text-sm font-semibold uppercase tracking-widest mb-4">
         New Mexico's Nonprofit Ecosystem
       </p>
