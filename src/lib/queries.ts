@@ -2,6 +2,7 @@ import { getDb } from './db';
 import type {
   Listing, ListingCard, Funder, Grant, GrantCard,
   Sector, SectorSummary, City, Region, Post, NmRegion,
+  JobCard, JobPosting,
 } from './types';
 
 // ----------------------------------------------------------------
@@ -216,6 +217,47 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
   const sql = getDb();
   const rows = await sql<Post[]>`
     SELECT * FROM posts WHERE slug = ${slug} AND is_published = true LIMIT 1
+  `;
+  return rows[0] ?? null;
+}
+
+// ----------------------------------------------------------------
+// Jobs
+// ----------------------------------------------------------------
+
+export async function getJobCards({ jobType, regionCode, limit = 50, offset = 0 }: {
+  jobType?: string;
+  regionCode?: string;
+  limit?: number;
+  offset?: number;
+} = {}): Promise<JobCard[]> {
+  const sql = getDb();
+  const jt = jobType || null;
+  const rc = regionCode || null;
+  return sql<JobCard[]>`
+    SELECT
+      j.id, j.slug, j.title, j.org_name,
+      l.slug AS listing_slug,
+      j.city_name, j.region_code, j.job_type,
+      j.salary_min, j.salary_max, j.salary_note,
+      j.deadline, j.created_at
+    FROM job_postings j
+    LEFT JOIN listings l ON l.id = j.listing_id AND l.deleted_at IS NULL
+    WHERE j.deleted_at IS NULL
+      AND j.status = 'approved'
+      AND (${jt}::text IS NULL OR j.job_type = ${jt})
+      AND (${rc}::text IS NULL OR j.region_code = ${rc})
+    ORDER BY j.created_at DESC
+    LIMIT ${limit} OFFSET ${offset}
+  `;
+}
+
+export async function getJobBySlug(slug: string): Promise<JobPosting | null> {
+  const sql = getDb();
+  const rows = await sql<JobPosting[]>`
+    SELECT * FROM job_postings
+    WHERE slug = ${slug} AND deleted_at IS NULL AND status = 'approved'
+    LIMIT 1
   `;
   return rows[0] ?? null;
 }

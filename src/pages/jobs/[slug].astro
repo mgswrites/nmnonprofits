@@ -1,0 +1,147 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import { getJobBySlug } from '../../lib/queries';
+import { getDb } from '../../lib/db';
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/jobs/');
+
+const job = await getJobBySlug(slug);
+if (!job) return Astro.redirect('/jobs/', 302);
+
+// Optionally fetch linked org listing slug for the link
+const sql = getDb();
+let listingSlug: string | null = null;
+if (job.listing_id) {
+  const [row] = await sql<{ slug: string }[]>`SELECT slug FROM listings WHERE id = ${job.listing_id} AND deleted_at IS NULL LIMIT 1`;
+  listingSlug = row?.slug ?? null;
+}
+
+const JOB_TYPE_LABELS: Record<string, string> = {
+  full_time: 'Full-time', part_time: 'Part-time',
+  contract: 'Contract', volunteer: 'Volunteer', internship: 'Internship',
+};
+
+function formatSalary(min: number | null, max: number | null, note: string | null): string {
+  const fmt = (n: number) => '$' + n.toLocaleString('en-US');
+  if (min && max) return `${fmt(min)} – ${fmt(max)}`;
+  if (min) return `${fmt(min)}+`;
+  if (max) return `Up to ${fmt(max)}`;
+  return note ?? '';
+}
+
+const salary = formatSalary(job.salary_min, job.salary_max, job.salary_note);
+const deadlineStr = job.deadline
+  ? new Date(job.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  : null;
+const postedStr = new Date(job.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+---
+
+<Layout
+  title={`${job.title} at ${job.org_name} | NM Nonprofits Jobs`}
+  description={`${job.title} — ${job.org_name}${job.city_name ? `, ${job.city_name}` : ''}. ${JOB_TYPE_LABELS[job.job_type] ?? ''} position.`}
+>
+  <div class="container-content py-10 max-w-3xl">
+    <!-- Breadcrumb -->
+    <nav class="text-xs text-gray-400 flex gap-1.5 items-center mb-6">
+      <a href="/" class="hover:text-gray-600">Home</a>
+      <span>/</span>
+      <a href="/jobs/" class="hover:text-gray-600">Jobs</a>
+      <span>/</span>
+      <span class="text-gray-600 truncate">{job.title}</span>
+    </nav>
+
+    <div class="bg-white border border-gray-200 rounded-xl p-8">
+      <!-- Header -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-3 flex-wrap">
+          <span class="badge bg-turquoise-100 text-turquoise-800">
+            {JOB_TYPE_LABELS[job.job_type] ?? job.job_type}
+          </span>
+          {deadlineStr && (
+            <span class="text-xs text-gray-400">Apply by {deadlineStr}</span>
+          )}
+        </div>
+        <h1 class="text-2xl font-serif font-bold text-gray-900 mb-1">{job.title}</h1>
+        <p class="text-gray-600">
+          {listingSlug
+            ? <a href={`/listing/${listingSlug}/`} class="text-turquoise-700 hover:underline font-medium">{job.org_name}</a>
+            : <span class="font-medium">{job.org_name}</span>
+          }
+          {job.city_name && <span class="text-gray-400"> · {job.city_name}, NM</span>}
+        </p>
+      </div>
+
+      <!-- Key details strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-gray-50 rounded-lg p-4 mb-8 text-sm">
+        <div>
+          <p class="text-xs text-gray-400 mb-0.5">Job Type</p>
+          <p class="font-medium text-gray-800">{JOB_TYPE_LABELS[job.job_type] ?? job.job_type}</p>
+        </div>
+        {job.city_name && (
+          <div>
+            <p class="text-xs text-gray-400 mb-0.5">Location</p>
+            <p class="font-medium text-gray-800">{job.city_name}, NM</p>
+          </div>
+        )}
+        {salary && (
+          <div>
+            <p class="text-xs text-gray-400 mb-0.5">Compensation</p>
+            <p class="font-medium text-turquoise-700">{salary}</p>
+          </div>
+        )}
+        <div>
+          <p class="text-xs text-gray-400 mb-0.5">Posted</p>
+          <p class="font-medium text-gray-800">{postedStr}</p>
+        </div>
+        {deadlineStr && (
+          <div>
+            <p class="text-xs text-gray-400 mb-0.5">Deadline</p>
+            <p class="font-medium text-gray-800">{deadlineStr}</p>
+          </div>
+        )}
+      </div>
+
+      <!-- Description -->
+      {job.description && (
+        <div class="prose prose-gray max-w-none mb-8">
+          <h2 class="text-lg font-semibold text-gray-900 mb-3">About This Role</h2>
+          {job.description.split('\n\n').map((p: string) => <p>{p.trim()}</p>)}
+        </div>
+      )}
+
+      <!-- How to apply -->
+      {(job.how_to_apply || job.application_url || job.contact_email) && (
+        <div class="border-t border-gray-100 pt-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-3">How to Apply</h2>
+          {job.how_to_apply && (
+            <div class="prose prose-gray max-w-none mb-4">
+              {job.how_to_apply.split('\n\n').map((p: string) => <p>{p.trim()}</p>)}
+            </div>
+          )}
+          <div class="flex flex-wrap gap-3">
+            {job.application_url && (
+              <a href={job.application_url} target="_blank" rel="noopener noreferrer"
+                class="btn-primary bg-zia-600 hover:bg-zia-500">
+                Apply Now
+              </a>
+            )}
+            {job.contact_email && (
+              <a href={`mailto:${job.contact_email}`}
+                class="btn-secondary border-gray-300 text-gray-700 hover:bg-gray-50">
+                Email to Apply
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+
+    <!-- Back link -->
+    <div class="mt-6">
+      <a href="/jobs/" class="text-sm text-gray-500 hover:text-turquoise-700">← Back to all jobs</a>
+    </div>
+  </div>
+</Layout>

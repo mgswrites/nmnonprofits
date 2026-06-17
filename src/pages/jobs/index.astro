@@ -1,0 +1,86 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import JobCard from '../../components/job/JobCard.astro';
+import { getJobCards, getAllRegions } from '../../lib/queries';
+
+const url = Astro.url;
+const jobType  = url.searchParams.get('type') ?? undefined;
+const regionCode = url.searchParams.get('region') ?? undefined;
+
+const [jobs, regions] = await Promise.all([
+  getJobCards({ jobType, regionCode, limit: 100 }),
+  getAllRegions(),
+]);
+
+const JOB_TYPES = [
+  { value: 'full_time',  label: 'Full-time' },
+  { value: 'part_time',  label: 'Part-time' },
+  { value: 'contract',   label: 'Contract' },
+  { value: 'volunteer',  label: 'Volunteer' },
+  { value: 'internship', label: 'Internship' },
+];
+---
+
+<Layout
+  title="Nonprofit Jobs in New Mexico | NM Nonprofits"
+  description="Browse job openings at New Mexico nonprofits, foundations, and social sector organizations. Full-time, part-time, contract, and volunteer roles."
+>
+  <!-- Header band -->
+  <div class="bg-turquoise-800 py-10">
+    <div class="container-content">
+      <div class="flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <h1 class="text-3xl font-serif font-bold text-white mb-1">Nonprofit Jobs in New Mexico</h1>
+          <p class="text-turquoise-200 text-sm">Full-time, part-time, contract, and volunteer roles at NM nonprofits</p>
+        </div>
+        <a href="/jobs/submit/" class="btn-primary bg-zia-600 hover:bg-zia-500 shrink-0">
+          Post a Job
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-content py-10">
+    <!-- Filters -->
+    <form method="get" class="flex flex-wrap gap-3 mb-8">
+      <select name="type" onchange="this.form.submit()"
+        class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500 bg-white">
+        <option value="">All job types</option>
+        {JOB_TYPES.map(t => (
+          <option value={t.value} selected={jobType === t.value}>{t.label}</option>
+        ))}
+      </select>
+
+      <select name="region" onchange="this.form.submit()"
+        class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500 bg-white">
+        <option value="">All regions</option>
+        {regions.map(r => (
+          <option value={r.code} selected={regionCode === r.code}>{r.name}</option>
+        ))}
+      </select>
+
+      {(jobType || regionCode) && (
+        <a href="/jobs/" class="text-sm text-gray-500 hover:text-gray-700 flex items-center">Clear filters</a>
+      )}
+
+      <span class="text-sm text-gray-400 flex items-center ml-auto">
+        {jobs.length} {jobs.length === 1 ? 'job' : 'jobs'}
+      </span>
+    </form>
+
+    <!-- Grid -->
+    {jobs.length > 0 ? (
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {jobs.map(j => <JobCard job={j} />)}
+      </div>
+    ) : (
+      <div class="text-center py-20 text-gray-400">
+        <p class="text-lg font-medium mb-2">No jobs found</p>
+        <p class="text-sm mb-6">Try removing filters or check back soon.</p>
+        <a href="/jobs/submit/" class="btn-primary">Post a Job</a>
+      </div>
+    )}
+  </div>
+</Layout>

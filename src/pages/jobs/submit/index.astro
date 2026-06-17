@@ -1,0 +1,170 @@
+---
+export const prerender = false;
+
+import Layout from '../../../layouts/Layout.astro';
+import { getAllRegions } from '../../../lib/queries';
+
+const regions = await getAllRegions();
+
+const JOB_TYPES = [
+  { value: 'full_time',  label: 'Full-time' },
+  { value: 'part_time',  label: 'Part-time' },
+  { value: 'contract',   label: 'Contract' },
+  { value: 'volunteer',  label: 'Volunteer' },
+  { value: 'internship', label: 'Internship' },
+];
+---
+
+<Layout
+  title="Post a Nonprofit Job | NM Nonprofits"
+  description="Post a job opening at your New Mexico nonprofit. Listings are free and reviewed before publishing."
+  noIndex={true}
+>
+  <div class="container-content py-12 max-w-2xl">
+    <h1 class="text-3xl font-serif font-bold mb-2">Post a Job</h1>
+    <p class="text-gray-500 mb-8">
+      Free for New Mexico nonprofits. Postings are reviewed before going live.
+    </p>
+
+    <form
+      method="POST"
+      action="/api/jobs/submit"
+      class="space-y-6 bg-white border border-gray-200 rounded-xl p-8"
+    >
+      <!-- Job details -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="sm:col-span-2">
+          <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+            Job Title <span class="text-red-500">*</span>
+          </label>
+          <input id="title" name="title" type="text" required
+            placeholder="e.g. Development Director"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+        </div>
+
+        <div class="sm:col-span-2">
+          <label for="org_name" class="block text-sm font-medium text-gray-700 mb-1">
+            Organization Name <span class="text-red-500">*</span>
+          </label>
+          <input id="org_name" name="org_name" type="text" required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+        </div>
+
+        <div>
+          <label for="job_type" class="block text-sm font-medium text-gray-700 mb-1">
+            Job Type <span class="text-red-500">*</span>
+          </label>
+          <select id="job_type" name="job_type" required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500">
+            {JOB_TYPES.map(t => <option value={t.value}>{t.label}</option>)}
+          </select>
+        </div>
+
+        <div>
+          <label for="city_name" class="block text-sm font-medium text-gray-700 mb-1">
+            City <span class="text-red-500">*</span>
+          </label>
+          <input id="city_name" name="city_name" type="text" required
+            placeholder="e.g. Albuquerque"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+        </div>
+
+        <div>
+          <label for="region_code" class="block text-sm font-medium text-gray-700 mb-1">
+            Region <span class="text-red-500">*</span>
+          </label>
+          <select id="region_code" name="region_code" required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500">
+            {regions.map(r => <option value={r.code}>{r.name}</option>)}
+          </select>
+        </div>
+
+        <div>
+          <label for="application_url" class="block text-sm font-medium text-gray-700 mb-1">
+            Application URL
+          </label>
+          <input id="application_url" name="application_url" type="url" placeholder="https://"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+        </div>
+
+        <!-- Salary -->
+        <div class="sm:col-span-2">
+          <p class="block text-sm font-medium text-gray-700 mb-2">Compensation (optional)</p>
+          <div class="grid grid-cols-2 gap-3 mb-2">
+            <div>
+              <label for="salary_min" class="text-xs text-gray-500 mb-1 block">Min salary ($)</label>
+              <input id="salary_min" name="salary_min" type="number" min="0" step="1000"
+                placeholder="e.g. 45000"
+                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+            </div>
+            <div>
+              <label for="salary_max" class="text-xs text-gray-500 mb-1 block">Max salary ($)</label>
+              <input id="salary_max" name="salary_max" type="number" min="0" step="1000"
+                placeholder="e.g. 60000"
+                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+            </div>
+          </div>
+          <input id="salary_note" name="salary_note" type="text"
+            placeholder="Or a note: e.g. Commensurate with experience"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+        </div>
+
+        <div>
+          <label for="deadline" class="block text-sm font-medium text-gray-700 mb-1">
+            Application Deadline
+          </label>
+          <input id="deadline" name="deadline" type="date"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+        </div>
+
+        <div>
+          <label for="contact_email" class="block text-sm font-medium text-gray-700 mb-1">
+            Contact Email for Applications
+          </label>
+          <input id="contact_email" name="contact_email" type="email"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+        </div>
+
+        <div class="sm:col-span-2">
+          <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+            Job Description <span class="text-red-500">*</span>
+          </label>
+          <textarea id="description" name="description" rows="8" required
+            placeholder="Describe the role, responsibilities, qualifications, and your organization..."
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500 resize-y"></textarea>
+        </div>
+
+        <div class="sm:col-span-2">
+          <label for="how_to_apply" class="block text-sm font-medium text-gray-700 mb-1">
+            How to Apply
+          </label>
+          <textarea id="how_to_apply" name="how_to_apply" rows="3"
+            placeholder="Instructions for applicants (cover letter, portfolio, references, etc.)"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500 resize-none"></textarea>
+        </div>
+
+        <!-- Submitter -->
+        <div class="sm:col-span-2 border-t border-gray-100 pt-4">
+          <p class="text-sm font-semibold text-gray-700 mb-3">Your Contact Information</p>
+        </div>
+
+        <div class="sm:col-span-2">
+          <label for="submitter_email" class="block text-sm font-medium text-gray-700 mb-1">
+            Your Email <span class="text-red-500">*</span>
+          </label>
+          <input id="submitter_email" name="submitter_email" type="email" required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
+          <p class="text-xs text-gray-400 mt-1">Used only to contact you about this posting. Not published.</p>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary w-full justify-center">
+        Submit for Review
+      </button>
+
+      <p class="text-xs text-gray-400 text-center">
+        Free for NM nonprofits. Reviewed within 1–2 business days.
+      </p>
+    </form>
+  </div>
+</Layout>

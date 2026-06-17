@@ -264,6 +264,48 @@ export interface SectorSummary {
   active_grant_count: number;
 }
 
+export type JobType = 'full_time' | 'part_time' | 'contract' | 'volunteer' | 'internship';
+
+export interface JobPosting {
+  id: number;
+  slug: string;
+  title: string;
+  org_name: string;
+  listing_id: number | null;
+  city_name: string | null;
+  region_code: NmRegion | null;
+  job_type: JobType;
+  salary_min: number | null;
+  salary_max: number | null;
+  salary_note: string | null;
+  description: string | null;
+  how_to_apply: string | null;
+  application_url: string | null;
+  contact_email: string | null;
+  deadline: string | null;
+  status: string;
+  submitter_email: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface JobCard {
+  id: number;
+  slug: string;
+  title: string;
+  org_name: string;
+  listing_slug: string | null;
+  city_name: string | null;
+  region_code: NmRegion | null;
+  job_type: JobType;
+  salary_min: number | null;
+  salary_max: number | null;
+  salary_note: string | null;
+  deadline: string | null;
+  created_at: string;
+}
+
 // ----------------------------------------------------------------
 // Form / API payload types
 // ----------------------------------------------------------------

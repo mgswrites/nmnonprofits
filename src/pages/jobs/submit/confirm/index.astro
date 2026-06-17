@@ -1,0 +1,23 @@
+---
+export const prerender = false;
+import Layout from '../../../../layouts/Layout.astro';
+---
+
+<Layout title="Job Submitted | NM Nonprofits" noIndex={true}>
+  <div class="container-content py-24 max-w-lg text-center">
+    <div class="w-16 h-16 bg-turquoise-100 rounded-full flex items-center justify-center mx-auto mb-6">
+      <svg class="w-8 h-8 text-turquoise-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+    </div>
+    <h1 class="text-3xl font-serif font-bold text-gray-900 mb-3">Job Submitted</h1>
+    <p class="text-gray-500 mb-8">
+      Your posting will be reviewed and published within 1–2 business days.
+      You'll receive an email once it's live.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="/jobs/" class="btn-primary">Browse All Jobs</a>
+      <a href="/jobs/submit/" class="btn-secondary border-gray-300 text-gray-700 hover:bg-gray-50">Post Another Job</a>
+    </div>
+  </div>
+</Layout>
