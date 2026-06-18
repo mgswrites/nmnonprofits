@@ -1,0 +1,240 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import { getSectorBySlug } from '../../lib/queries';
+import { getListingCards } from '../../lib/queries';
+import ListingCard from '../../components/shared/ListingCard.astro';
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/sectors/');
+
+const sector = await getSectorBySlug(slug);
+if (!sector) return Astro.redirect('/sectors/', 301);
+
+const listings = await getListingCards({ sectorSlug: slug, limit: 200 });
+
+const EDITORIAL: Record<string, string> = {
+  'animal-welfare': `
+<p>New Mexico faces distinct animal welfare challenges rooted in its geography, rural character, and limited municipal resources. The state has one of the highest rates of stray and feral animal populations in the country, a consequence of underfunded animal control programs, sprawling rural territory, and economic pressures that force some families to surrender pets they can no longer care for.</p>
+
+<p>The nonprofit sector has stepped in to fill these gaps with a network of humane societies, shelters, spay-neuter coalitions, and wildlife rehabilitation centers distributed across the state. Albuquerque, Las Cruces, Roswell, Gallup, and Farmington each have established humane societies that combine adoption programming with animal control services for their municipalities. Smaller communities are served by organizations like Stray Hearts Animal Shelter in Taos, the San Juan Animal League in Farmington, and the Animal Welfare Coalition of Northeastern New Mexico in Las Vegas.</p>
+
+<p>Spay and neuter access is a particular priority in New Mexico. The Spay-Neuter Coalition of New Mexico operates statewide programs to reduce overpopulation at the source, working in communities where low-cost services are otherwise unavailable. ACTion Programs for Animals in Las Cruces takes a similar approach in the southern part of the state.</p>
+
+<p>Wildlife rehabilitation is another important part of the sector. New Mexico's diverse ecosystems, from Chihuahuan desert to high-altitude forests, support a wide range of native species that occasionally need intervention. The Desert Willow Wildlife Rehabilitation Center, New Mexico Wildlife Center, and Wildlife Rescue Inc. of New Mexico provide care for injured and orphaned native wildlife, operating as educational resources as well as treatment facilities.</p>
+
+<p>Tribal nations within New Mexico often have distinct animal welfare needs and jurisdiction over stray animal populations on tribal lands. Collaboration between tribal governments and nonprofit organizations is ongoing and evolving as awareness grows of the scale of need in these communities.</p>
+
+<p>The animal welfare sector in New Mexico is supported by national organizations like the ASPCA and Humane Society of the United States, as well as by state-level funding from the New Mexico Legislature's Animal Care Act appropriations. Private philanthropy, adoption fees, and individual donations remain the primary funding sources for most local organizations.</p>
+`,
+  'arts-culture': `
+<p>New Mexico's arts and culture nonprofit sector is among the most distinctive and densely populated per capita in the United States. The state's 400-year-old tradition of Indigenous artistic production, the Spanish colonial arts legacy, and the Euro-American artist colonies that took root in Santa Fe and Taos in the early twentieth century have combined to create one of the most vibrant cultural ecosystems in the American West.</p>
+
+<p>Santa Fe has the highest concentration of art galleries per capita of any city in the country, and the nonprofit infrastructure that supports its cultural economy reflects that density. The Museum of New Mexico Foundation, SITE Santa Fe, and the Institute of American Indian Arts are among the institutions with national reach. Meow Wolf, which began as a Santa Fe arts collective before becoming a major immersive entertainment company, is one of the more unusual examples of nonprofit origins leading to commercial scale.</p>
+
+<p>Indigenous arts are a defining element of New Mexico's cultural identity. Pueblo pottery, Diné weaving and silverwork, and the arts traditions of the state's 23 federally recognized tribes and pueblos are sustained by both Indigenous-led nonprofits and broader cultural institutions. The Wheelwright Museum of the American Indian and the Heard Museum in neighboring Arizona have shaped national appreciation for Southwestern Indigenous art, while community-based organizations work to ensure that these traditions remain living practices within the communities that created them.</p>
+
+<p>Albuquerque has its own robust arts nonprofit ecosystem, anchored by institutions like the Albuquerque Museum Foundation, 516 ARTS, and the Harwood Art Center. The Rail Yards at Barelas is an emerging cultural campus that has become a hub for artists, makers, and community events on the South Valley. The National Hispanic Cultural Center, a state institution with active nonprofit partnership, is one of the largest institutions in the country dedicated to Latinx arts and culture.</p>
+
+<p>Smaller communities throughout New Mexico have developed arts organizations that serve as anchors for local cultural life. The Taos Center for the Arts, the Silver City Arts Commission, and the Las Vegas Arts Council are examples of community-scale organizations that make arts programming accessible outside the state's major metros.</p>
+
+<p>Public funding for arts and culture in New Mexico comes through the New Mexico Arts division of the Department of Cultural Affairs, which distributes state and National Endowment for the Arts funds through a grant program. Local governments, private foundations, and individual donors round out the funding base for a sector that contributes substantially to the state's tourism economy and quality of life.</p>
+`,
+  'civic-engagement': `
+<p>New Mexico has historically had some of the lowest voter turnout rates in the United States, a pattern driven by geographic isolation, language barriers, voter registration challenges in rural communities, and deep skepticism toward government institutions in communities that have experienced historical exclusion. The civic engagement nonprofit sector works to close that gap through voter registration, civic education, get-out-the-vote campaigns, and policy advocacy.</p>
+
+<p>The state's demographic diversity, with large Indigenous, Hispanic, and immigrant populations, shapes the work of civic engagement organizations in significant ways. Somos Un Pueblo Unido works specifically with immigrant communities, providing know-your-rights education, civic participation support, and advocacy on immigration-related policy. The Youth Development Institute focuses on young people's civic development, preparing the next generation of engaged New Mexicans through leadership programs and civic education in schools.</p>
+
+<p>New Mexico Voices for Children is among the most visible policy advocacy organizations in the state, producing rigorous research on budget priorities, child poverty, and economic equity, and translating that research into accessible advocacy for legislators and the public. New Mexico First convenes nonpartisan town halls and policy forums that bring together stakeholders from across the political and geographic spectrum.</p>
+
+<p>Common Cause New Mexico and the American Civil Liberties Union of New Mexico work on structural democracy issues: campaign finance transparency, redistricting fairness, voting rights protection, and government accountability. Both organizations engage in litigation as well as public education.</p>
+
+<p>The New Mexico Federation of Labor (AFL-CIO) and its member unions are significant civic engagement actors in the state, particularly around worker-focused ballot measures and candidate endorsements. Nonprofit organizations are prohibited from endorsing candidates, but many engage in voter registration and civic education activities that support broader democratic participation.</p>
+
+<p>Census outreach was a major focus during the 2020 count, with a statewide Complete Count Committee and dozens of community organizations working to ensure that New Mexico's historically undercounted populations, including Indigenous communities, rural Hispanic villages, and immigrants, were fully represented. The work continues as organizations prepare for the 2030 census and the redistricting cycle it will trigger.</p>
+`,
+  'economic-development': `
+<p>New Mexico consistently ranks near the bottom of national measures of poverty, median household income, and economic opportunity. The state has the third-highest poverty rate in the United States, with particularly severe economic hardship concentrated in rural communities, tribal nations, and the colonias along the US-Mexico border. The economic development nonprofit sector works to address this through workforce development, small business support, community development finance, and economic planning.</p>
+
+<p>Community Development Financial Institutions (CDFIs) play a central role in New Mexico's economic development ecosystem. These mission-driven lenders provide capital to small businesses, homebuyers, and community facilities in markets that conventional banks underserve. Homewise in Santa Fe is one of the most successful CDFIs in the country, having helped thousands of New Mexico families achieve homeownership through affordable mortgage products and financial coaching. Nusenda Foundation and the New Mexico Small Business Development Center network support entrepreneurs across the state.</p>
+
+<p>Workforce development is a major priority given New Mexico's high unemployment rates and the skills gap that exists between available workers and available jobs, particularly in the growing technology and defense sectors anchored by the national laboratories at Los Alamos and Sandia. CNM Ingenuity, connected to Central New Mexico Community College, and similar workforce nonprofits work to connect jobseekers with credentials and employers with trained workers.</p>
+
+<p>Rural economic development in New Mexico requires specialized approaches that account for long distances, thin markets, and the importance of traditional land-based livelihoods including agriculture, ranching, and timber. The New Mexico Association of Community Development Corporations coordinates member organizations working across the state, while regional entities like the Four Corners Economic Development organization focus on the specific opportunities and challenges of their areas.</p>
+
+<p>Tribal economic development is a distinct and growing field. Many of New Mexico's 23 federally recognized nations and pueblos are developing enterprises in gaming, tourism, agriculture, and energy while building the governance and financial infrastructure to manage economic growth in ways that align with cultural values and community priorities. Nonprofit technical assistance providers support this work, often in partnership with federal agencies like the Bureau of Indian Affairs and the Small Business Administration.</p>
+
+<p>New Mexico's economic development funders include the Economic Development Department of the state government, the federal Economic Development Administration, foundations like the Thornburg Foundation, McCune Charitable Foundation, and the W.K. Kellogg Foundation, which has made significant investments in New Mexico communities over many years.</p>
+`,
+  'education-youth': `
+<p>New Mexico faces some of the most significant education challenges of any state in the country. The state has ranked last or near-last in national assessments of fourth-grade reading and eighth-grade math for over a decade. High school graduation rates have improved in recent years but remain below national averages, and post-secondary attainment lags significantly behind the levels needed to meet the demands of a changing economy.</p>
+
+<p>The nonprofit sector has responded to this challenge with an enormous diversity of organizations working at every level of the education pipeline. Early childhood is a priority area, with organizations like New Mexico Kids, the New Mexico Association for the Education of Young Children, and local Head Start grantees providing care and education for the state's youngest learners. Research consistently shows that high-quality early childhood experiences are the most cost-effective educational investment available, and New Mexico has made significant public investments in this area, with nonprofits as key delivery partners.</p>
+
+<p>K-12 education nonprofits range from after-school programs and tutoring organizations to charter school support networks and education advocacy groups. The New Mexico Coalition for Charter Schools supports the state's growing charter sector, while organizations like Youth Development Institute and Communities In Schools work within and alongside traditional public schools to address the barriers that prevent students from learning. GRADS (Graduation Really Achieves Dreams) is one of the more innovative programs in the state, supporting pregnant and parenting teens in staying enrolled and completing their education.</p>
+
+<p>Youth development nonprofits, while not always school-focused, play a crucial role in the education ecosystem by providing safe spaces, mentorship, leadership development, and structured programming during the after-school hours when young people are most at risk. The YMCA of Central New Mexico, Boys and Girls Clubs chapters, and the Thornburg Foundation's grantmaking all support this work. 4-H programs through New Mexico State University Extension reach rural youth who might not have access to urban-based programming.</p>
+
+<p>Higher education access is another major focus area. Organizations like the New Mexico Dream Team work to ensure that all students, including undocumented students, can access college and career pathways. Scholarship programs, college access nonprofits, and community-based mentorship organizations support first-generation college students in navigating the barriers to post-secondary completion.</p>
+
+<p>Education funding in New Mexico comes primarily through the state's public school funding formula, but nonprofits access additional support through federal Title I and Title IV funds, foundations including the Bill and Melinda Gates Foundation and Kellogg Foundation, and local education foundations that raise private money for school enrichment.</p>
+`,
+  'environment-conservation': `
+<p>New Mexico's environment and conservation nonprofit sector works across one of the most biologically and geologically diverse states in the country. From the high-elevation forests of the Sangre de Cristo Mountains to the Chihuahuan Desert basin, from the Rio Grande river corridor to the high plains grasslands of the east, New Mexico contains an extraordinary range of ecosystems that support both native biodiversity and the working landscapes that sustain rural communities.</p>
+
+<p>Water is the central organizing concern of New Mexico's environmental nonprofit sector. The state is the driest in the continental United States by average precipitation, and its water systems are under growing pressure from drought, climate change, agricultural demand, and population growth along the Rio Grande corridor. The New Mexico Acequia Association represents more than 700 community-managed irrigation systems, some dating to the 1600s, that are among the most enduring community institutions in the American West. Rio Grande Return works on river restoration and water policy at the basin scale, while smaller watershed organizations work on specific tributaries and aquifer systems.</p>
+
+<p>Land conservation is another major area of activity. The New Mexico Land Conservancy, Conservation Voters New Mexico, and the New Mexico Wilderness Alliance work through different strategies, including direct land acquisition, public land advocacy, and political engagement, to protect New Mexico's wildlands and working landscapes. Valles Caldera Trust manages the extraordinary volcanic landscape of the Valles Caldera National Preserve in partnership with the National Park Service.</p>
+
+<p>Climate change adaptation and mitigation have become increasingly central to the work of environmental nonprofits in New Mexico. The state is experiencing faster-than-average warming, more intense drought cycles, and increased wildfire risk, all of which have direct consequences for communities, ecosystems, and economies that depend on reliable rainfall and snowpack. Organizations are working on renewable energy development, energy efficiency in low-income housing, forest restoration to reduce wildfire risk, and climate resilience planning in rural communities.</p>
+
+<p>Environmental justice is an important dimension of the sector's work in New Mexico, where low-income communities and communities of color, including many Indigenous and Hispanic communities, bear a disproportionate share of environmental burdens from oil and gas extraction, uranium mining legacy contamination, and industrial facilities. Organizations like Tewa Women United, Pueblo Action Alliance, and the New Mexico Environmental Law Center work at the intersection of environmental protection and civil rights.</p>
+
+<p>Funding for environmental work in New Mexico comes from national foundations like the Wilburforce Foundation, Patagonia Environmental Grants, and the Packard Foundation, as well as from the New Mexico Environment Department, the Land of Enchantment Legacy Fund (a state conservation program), and private donors who care about the landscapes and communities of the Southwest.</p>
+`,
+  'food-agriculture': `
+<p>New Mexico has a profound and complex relationship with food and agriculture that stretches back thousands of years. The state's Pueblo peoples developed sophisticated dryland farming systems in one of the most challenging agricultural environments in North America. Spanish settlers established acequia-irrigated village farms in the Rio Grande corridor beginning in the 1600s. Today, this agricultural heritage coexists with some of the highest food insecurity rates in the United States, reflecting the paradox of a deeply food-cultured state where many residents struggle to access enough to eat.</p>
+
+<p>Food banks and food distribution nonprofits form the emergency response layer of the food system. Roadrunner Food Bank, based in Albuquerque, is the largest hunger relief organization in New Mexico, distributing tens of millions of pounds of food annually through a statewide network of partner agencies. Regional food banks and community pantries serve communities across the state, often providing the only consistent food access point in rural areas where grocery stores are distant or absent.</p>
+
+<p>Farmers markets have become an important component of both food access and economic development for small-scale producers. The New Mexico Farmers' Marketing Association supports more than 75 farmers markets across the state, many of which accept SNAP benefits and participate in the Double Up Food Bucks program, which matches SNAP spending on New Mexico-grown fruits and vegetables. The Santa Fe Farmers Market Institute, Rail Yards Market in Albuquerque, and dozens of community markets in smaller cities connect local growers directly with consumers.</p>
+
+<p>Agricultural support organizations work to keep small and mid-scale farming viable in a state where farms are often too small to benefit from commodity programs but too geographically isolated to easily access markets. The New Mexico Farmers' Marketing Association, acequia associations, and farm-to-school programs like La Semilla Food Center's work in the Mesilla Valley help producers build markets and diversify income. The New Mexico Department of Agriculture's New Mexico True branding program, while a government initiative, works alongside nonprofit partners to promote the state's distinctive agricultural products.</p>
+
+<p>Food sovereignty is a particularly significant concept in New Mexico, where Indigenous communities have long maintained that control over food systems is inseparable from cultural survival and political self-determination. Organizations like Tewa Women United's Pueblo Food Experience, Advancing New Mexico Food Systems, and Indigenous-led seed saving projects work to revitalize traditional food crops and practices that were disrupted by colonization and the industrialization of the food system.</p>
+
+<p>Funding for food and agriculture nonprofits in New Mexico comes from USDA programs including the Community Food Projects Competitive Grant Program, state appropriations through the New Mexico Department of Agriculture and the Human Services Department, foundations including the McCune Charitable Foundation and Thornburg Foundation, and the growing network of community foundations across the state.</p>
+`,
+  'health-human-services': `
+<p>Health and human services is the largest sector in New Mexico's nonprofit ecosystem, both by number of organizations and by total expenditure. The scale reflects the depth of need in a state where poverty rates are among the highest in the nation, where rural communities are underserved by healthcare infrastructure, and where behavioral health needs, including mental health and substance use disorders, have reached crisis proportions.</p>
+
+<p>Healthcare access nonprofits include Federally Qualified Health Centers (FQHCs), community health workers, and organizations that help people navigate the insurance and benefits systems. New Mexico has made significant investments in Medicaid expansion, resulting in one of the highest Medicaid enrollment rates in the country, but coverage does not guarantee access in rural areas where providers are scarce. Organizations like Presbyterian Medical Services, one of the largest FQHCs in the country, operate clinics throughout rural New Mexico, reaching communities that commercial providers cannot serve profitably.</p>
+
+<p>Mental health services are delivered through a combination of behavioral health organizations, community mental health centers, peer support organizations, and crisis intervention services. The state has struggled with the behavioral health system for years, including a controversial managed care transition that disrupted services for thousands of clients in the 2010s. The nonprofit sector has worked to stabilize and rebuild mental health infrastructure, with organizations like La Frontera New Mexico, Agora Crisis Center, and dozens of community mental health providers serving the demand for care.</p>
+
+<p>Social services nonprofits provide a broad range of supports that fall outside the healthcare system but are essential to health and wellbeing: food assistance, transportation, utility assistance, childcare, domestic violence services, elder care, and disability services. Catholic Charities of New Mexico, The Salvation Army, Jewish Family Service, and many community-based organizations operate programs that collectively serve hundreds of thousands of New Mexicans annually.</p>
+
+<p>Domestic violence and sexual assault services are provided through a network of shelters and advocacy organizations coordinated statewide through the New Mexico Coalition Against Domestic Violence and the New Mexico Coalition of Sexual Assault Programs. Every county in New Mexico is served by at least one member organization, though rural programs often operate with very limited staff and resources.</p>
+
+<p>Children and family services nonprofits work alongside the state Children, Youth and Families Department to support families in crisis, children in foster care, and youth aging out of the foster care system. Early childhood organizations, family resource centers, and home visiting programs serve families at risk before crises occur, often producing better outcomes at lower cost than reactive child welfare interventions.</p>
+
+<p>Funding for the health and human services sector comes heavily from government sources, including Medicaid, state general fund appropriations, federal block grants including CSBG and CCDBG, and contracts with state agencies. Foundation support, including from McCune Charitable Foundation, Kellogg Foundation, Robert Wood Johnson Foundation, and local community foundations, supplements government funding and supports innovation and advocacy.</p>
+`,
+  'housing-homelessness': `
+<p>New Mexico's housing and homelessness nonprofit sector operates in a state where the affordable housing shortage is acute, where homelessness is concentrated in Albuquerque but present in every corner of the state, and where decades of underinvestment in housing production and preservation have left many communities without adequate options for low-income residents.</p>
+
+<p>Homelessness in New Mexico is driven by a combination of factors including poverty, substance use disorders, mental illness, domestic violence, and the simple lack of affordable rental housing. Albuquerque has the state's largest homeless population, with the annual Point-in-Time count consistently finding several thousand people experiencing homelessness on a given night. Organizations like Heading Home New Mexico coordinate the Continuum of Care that allocates federal HUD funding to housing and service providers, while emergency shelters including the Joy Junction and Albuquerque Rescue Mission provide immediate refuge.</p>
+
+<p>Permanent supportive housing, which combines affordable housing with on-site or connected services for people with disabilities and chronic homelessness, has become the central strategy for ending homelessness among the highest-needs population. The New Mexico Coalition to End Homelessness coordinates advocacy and system-building work, while housing providers develop and manage the units that make permanent housing possible.</p>
+
+<p>Affordable housing development is a capital-intensive undertaking that requires specialized expertise in real estate finance, federal tax credit programs, and regulatory compliance. Nonprofit developers including New Mexico Housing, Community Development Corporation of New Mexico, and Homewise develop and preserve affordable housing using Low Income Housing Tax Credits (LIHTC), HOME funds, and other public and private financing tools. The New Mexico Mortgage Finance Authority administers most federal housing funding in the state and is an important partner for nonprofit developers.</p>
+
+<p>Rural housing presents distinct challenges in New Mexico, where manufactured housing is common, where housing stock is often old and in poor condition, and where geographic isolation limits the options available to low-income residents. Colonias, unincorporated communities near the US-Mexico border in Doña Ana and other counties, have some of the most severe housing conditions in the state, with many homes lacking adequate water, sewer, and electrical service.</p>
+
+<p>Home repair and weatherization programs serve homeowners, particularly elderly and low-income homeowners, who cannot afford to maintain or improve their homes. The Habitat for Humanity affiliates in Albuquerque, Santa Fe, Las Cruces, and other communities build new homes and repair existing ones, while Community Action programs administer the Low Income Home Energy Assistance Program (LIHEAP) and weatherization funds.</p>
+
+<p>Homewise is perhaps the most innovative affordable housing organization in New Mexico, with a model that combines lending, homebuyer education, and real estate services to help people with modest incomes purchase their first homes. Its success has attracted national attention and philanthropic investment, making it a model for mission-driven homeownership programs in other states.</p>
+`,
+  'immigration-refugee': `
+<p>New Mexico's immigration and refugee services sector reflects the state's position as a border state, its large and long-established Hispanic and Indigenous communities, and its growing population of immigrants from Mexico, Central America, and more recently from Africa, Asia, and the Middle East. The sector provides legal assistance, resettlement support, know-your-rights education, and advocacy for immigrant communities navigating an often-hostile policy environment.</p>
+
+<p>New Mexico shares approximately 180 miles of border with Mexico, primarily in Doña Ana County, and the communities of the Mesilla Valley and the border region have long had deep ties to Mexico and a significant mixed-status immigrant population. Organizations like the Border Network for Human Rights document conditions along the border, advocate for humane immigration enforcement, and build civic capacity in border communities. The American Civil Liberties Union of New Mexico and Las Americas Immigrant Advocacy Center provide legal representation for people facing immigration enforcement.</p>
+
+<p>Albuquerque has a significant refugee resettlement program. The International Rescue Committee and Catholic Charities of New Mexico are the two primary resettlement agencies, providing newly arrived refugees with housing, English language instruction, employment assistance, and connections to community resources. Refugees arrive from Somalia, the Democratic Republic of Congo, Iraq, Afghanistan, Myanmar, and other countries, bringing diverse languages and backgrounds that enrich the city's communities.</p>
+
+<p>El Centro de Igualdad y Derechos, Somos Un Pueblo Unido, and the New Mexico Dream Team are among the organizations working on the civic and political dimensions of immigrant integration, including voter registration for eligible immigrants, advocacy for in-state tuition for undocumented students, and campaigns for drivers licenses and other forms of state ID regardless of immigration status. The New Mexico Legislature extended driving authorization to undocumented residents in 2003, one of the first states in the country to do so.</p>
+
+<p>Legal aid for immigrants is provided through a network of nonprofit law firms and clinics. The Santa Fe Dreamers Project focuses on DACA and other immigration relief for younger immigrants, while Immigration Law Practitioners Alliance and similar organizations support the broader immigrant community with removal defense, family petitions, and naturalization assistance.</p>
+
+<p>The immigration services sector in New Mexico has experienced significant stress during periods of heightened federal enforcement, including increased detention and deportation activity. Rapid response networks of nonprofits, legal service providers, and community organizations have developed infrastructure to respond to enforcement actions, including know-your-rights trainings, legal emergency hotlines, and accompaniment programs that support individuals through encounters with immigration authorities.</p>
+`,
+  'indigenous-communities': `
+<p>New Mexico is home to 23 federally recognized tribes, pueblos, and nations, more than any state except Alaska. These include the 19 Pueblos of the Rio Grande region and western New Mexico, the Navajo Nation (whose New Mexico lands are the eastern portion of the largest tribal nation in the United States), and the Jicarilla Apache Nation, Mescalero Apache Tribe, and Fort Sill Apache Tribe. Each nation maintains its own government, cultural practices, and legal status, and the nonprofit organizations that serve these communities reflect this extraordinary diversity.</p>
+
+<p>Indigenous-led nonprofits in New Mexico work on a wide range of issues including language revitalization, cultural preservation, food sovereignty, environmental justice, health, education, and economic development. Organizations like Tewa Women United work at the intersection of Indigenous feminism, environmental justice, and cultural revitalization. Pueblo Action Alliance advocates for Pueblo environmental and cultural rights. The Institute of American Indian Arts supports Indigenous artists and provides higher education in the arts. The All Pueblo Council of Governors coordinates advocacy on issues of common concern to the 19 Pueblos.</p>
+
+<p>Language revitalization is among the most urgent priorities in the sector. Most Pueblo languages, as well as Navajo and the Apache languages, are endangered, with fewer fluent speakers each decade. Nonprofits and tribal programs work to document languages, create educational materials, train teachers, and support immersion programs that can transmit languages to new generations before the last fluent speakers are lost.</p>
+
+<p>Indigenous food sovereignty is another critical area of work. Traditional food crops including corn, beans, squash, chiles, and dozens of less-known cultivars are maintained through seed-saving programs and traditional farming practices that are threatened by water scarcity, changing climate conditions, and the displacement of traditional livelihoods. Pueblo communities along the Rio Grande maintain acequia systems that are among the oldest continuously managed water systems in North America.</p>
+
+<p>The education nonprofit sector in Indigenous communities addresses both the underfunding of Bureau of Indian Education schools on tribal lands and the need for culturally grounded curriculum and instruction in public schools with significant Indigenous enrollment. Organizations like Native American Community Academy in Albuquerque provide an alternative model: a public charter school explicitly designed to serve the city's urban Indigenous student population with culturally responsive programming.</p>
+
+<p>Nonprofits working in and with Indigenous communities in New Mexico must navigate questions of sovereignty, self-determination, and cultural sensitivity carefully. The most effective organizations are those led by and accountable to the communities they serve, and the trend toward Indigenous-led philanthropy and tribal self-determination in funding is reshaping how resources flow to these communities. The First Nations Development Institute and NDN Collective are national organizations that support this shift.</p>
+`,
+  'substance-use-recovery': `
+<p>New Mexico has among the highest drug overdose death rates in the United States, a distinction that reflects decades of underinvestment in prevention and treatment, high rates of poverty and trauma, and the geographic isolation that limits access to services in rural communities. The substance use and recovery nonprofit sector works across the continuum from prevention to harm reduction to treatment to recovery support, serving a population in profound need.</p>
+
+<p>Harm reduction is a well-established practice in New Mexico, pioneered in part by the New Mexico Department of Health's needle exchange programs beginning in the 1990s, one of the first such programs in the United States. Nonprofit organizations including New Mexico Harm Reduction Collaborative and El CENTRO provide sterile syringes, naloxone (the overdose reversal medication), fentanyl test strips, and other supplies and services that reduce the death toll of addiction while maintaining contact with people who are not yet ready for treatment. New Mexico's Good Samaritan law, which provides legal protection to people who call 911 during an overdose, is one of the strongest in the country and was the result of advocacy by the harm reduction community.</p>
+
+<p>Treatment services in New Mexico include both residential and outpatient programs, medication-assisted treatment (including buprenorphine and methadone), and integrated behavioral health services that address co-occurring mental health conditions alongside substance use. SPIN (Supporting People in Need) in Silver City, Turquoise Lodge Hospital, and dozens of community behavioral health organizations provide treatment services, though capacity remains well short of need, particularly in rural areas.</p>
+
+<p>Recovery support organizations build the community and social infrastructure that people need to sustain recovery after treatment. Recovery community centers, peer support specialist programs, recovery housing, and employment support for people in recovery are all part of this ecosystem. The New Mexico Alliance of Recovery Community Organizations coordinates advocacy and capacity building for member organizations across the state.</p>
+
+<p>Prevention work in New Mexico focuses on youth, with school-based programs, community coalition work, and public education campaigns aimed at reducing the initiation of substance use and building protective factors in young people's lives. The New Mexico Prevention Network supports community-based prevention coalitions in counties throughout the state.</p>
+
+<p>Funding for the substance use and recovery sector comes from multiple streams including Medicaid (which covers behavioral health services), the federal Substance Abuse and Mental Health Services Administration (SAMHSA), state general fund appropriations, and the settlement funds from opioid litigation that are beginning to flow to communities most affected by the opioid epidemic. Advocacy organizations have worked to ensure that these settlement funds are used for evidence-based services rather than diverted to general government purposes.</p>
+`,
+};
+
+const editorial = EDITORIAL[slug] ?? '';
+const metaTitle = sector.meta_title ?? `${sector.name} Nonprofits in New Mexico | NM Nonprofits`;
+const metaDesc  = sector.meta_description ?? `Find ${sector.name.toLowerCase()} nonprofits in New Mexico. Browse organizations, learn about funding, and connect with the sector.`;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `${sector.name} Nonprofits in New Mexico`,
+  description: metaDesc,
+  url: `https://nmnonprofits.com/sectors/${slug}/`,
+};
+---
+
+<Layout title={metaTitle} description={metaDesc}>
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+  <div class="container-content py-10 max-w-4xl">
+    <!-- Breadcrumb -->
+    <nav class="text-xs text-gray-400 flex gap-1.5 items-center mb-6">
+      <a href="/" class="hover:text-gray-600">Home</a>
+      <span>/</span>
+      <a href="/sectors/" class="hover:text-gray-600">Issue Areas</a>
+      <span>/</span>
+      <span class="text-gray-600">{sector.name}</span>
+    </nav>
+
+    <h1 class="text-3xl font-serif font-bold text-gray-900 mb-2">{sector.name} Nonprofits in New Mexico</h1>
+    <p class="text-gray-500 mb-8">{sector.description}</p>
+
+    {editorial && (
+      <div class="prose prose-gray prose-lg max-w-none mb-12
+        prose-p:text-gray-700 prose-p:leading-relaxed
+        prose-headings:font-serif prose-headings:text-gray-900">
+        <Fragment set:html={editorial} />
+      </div>
+    )}
+
+    <div class="border-t border-gray-100 pt-8">
+      <h2 class="text-xl font-serif font-semibold text-gray-900 mb-6">
+        {listings.length} {sector.name} {listings.length === 1 ? 'Organization' : 'Organizations'} in New Mexico
+      </h2>
+
+      {listings.length > 0 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {listings.map((listing) => (
+            <ListingCard listing={listing} />
+          ))}
+        </div>
+      ) : (
+        <p class="text-gray-400 py-12 text-center">No organizations listed yet in this sector.</p>
+      )}
+    </div>
+
+    <div class="mt-10 pt-6 border-t border-gray-100 flex flex-wrap gap-4 justify-between items-center">
+      <a href="/sectors/" class="text-sm text-turquoise-700 hover:underline">← All issue areas</a>
+      <a href="/nonprofits/?sector={slug}" class="text-sm text-gray-500 hover:text-gray-700">
+        Search and filter {sector.name} orgs →
+      </a>
+    </div>
+  </div>
+</Layout>

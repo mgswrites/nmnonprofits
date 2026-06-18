@@ -1,0 +1,151 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import { getListingCards } from '../../lib/queries';
+import ListingCard from '../../components/shared/ListingCard.astro';
+import type { NmRegion } from '../../lib/types';
+
+const REGIONS: Record<string, {
+  name: string;
+  regionCode: NmRegion;
+  metaTitle: string;
+  metaDesc: string;
+  editorial: string;
+}> = {
+  'albuquerque-metro': {
+    name: 'Albuquerque Metro',
+    regionCode: 'albuquerque_metro',
+    metaTitle: 'Albuquerque Metro Nonprofits | NM Nonprofits Directory',
+    metaDesc: 'Browse nonprofits in the Albuquerque metropolitan area, including Bernalillo County, Rio Rancho, and surrounding communities.',
+    editorial: `<p>The Albuquerque metropolitan area is the center of gravity for New Mexico's nonprofit sector. With a population of roughly 900,000 people in the greater metro area, Albuquerque and its surrounding communities are home to the largest concentration of nonprofit organizations in the state, spanning every issue area from arts and culture to housing, health, education, and economic development.</p>
+
+<p>Albuquerque's nonprofit sector reflects the city's distinctive character: deeply rooted in Hispano and Pueblo cultural traditions, shaped by its role as the state's commercial and healthcare hub, and energized by a growing technology and creative economy. The city is home to major regional institutions including the University of New Mexico and its associated health system, Presbyterian Healthcare Services, and Sandia National Laboratories, all of which are significant employers and anchor partners for community nonprofits.</p>
+
+<p>The South Valley and the International District are home to some of the city's most vibrant community-based organizations. The South Valley, with its strong Hispano agricultural traditions and working-class communities, is served by organizations focused on acequia preservation, community health, and economic development. The International District, sometimes called the "most diverse square mile in New Mexico," is home to a large refugee and immigrant population and a network of cultural organizations that reflect the district's extraordinary diversity.</p>
+
+<p>Downtown Albuquerque and the Railyard district have become hubs for arts organizations, social enterprises, and nonprofits working on homelessness and economic revitalization. The Rail Yards at Barelas is an emerging cultural campus that has drawn creative organizations to a historic industrial site on the South Valley edge of downtown.</p>
+
+<p>Rio Rancho, Bernalillo County's second-largest city, has its own growing nonprofit community, particularly in education, youth services, and senior care. As Rio Rancho has grown rapidly in the past two decades, community organizations have developed to serve residents who previously commuted to Albuquerque for services.</p>
+
+<p>Funders active in the Albuquerque metro include the Albuquerque Community Foundation, McCune Charitable Foundation, Nusenda Foundation, PNM Resources Foundation, and dozens of corporate giving programs from the city's major employers. The City of Albuquerque and Bernalillo County both contract with nonprofits for a wide range of social services, arts programming, and economic development activities.</p>`,
+  },
+  'northern-new-mexico': {
+    name: 'Northern New Mexico',
+    regionCode: 'northern_nm',
+    metaTitle: 'Northern New Mexico Nonprofits | NM Nonprofits Directory',
+    metaDesc: 'Browse nonprofits in northern New Mexico including Santa Fe, Taos, Las Vegas NM, Espanola, and the Pueblo communities of the Rio Grande corridor.',
+    editorial: `<p>Northern New Mexico encompasses one of the most culturally distinctive regions in the United States. From the Pueblo communities along the Rio Grande to the Spanish colonial villages of the mountains and valleys, from the arts mecca of Santa Fe to the high-desert communities of the Pecos River Valley and the agricultural heartland of the Espanola Valley, the region is characterized by deep cultural roots, extraordinary landscape, and some of the most persistent economic challenges in the country.</p>
+
+<p>Santa Fe, the state capital and the most visited city in New Mexico, has a nonprofit sector shaped by its role as a center for arts, culture, government, and philanthropy. The Santa Fe Community Foundation is one of the most active community foundations in the state, distributing millions of dollars annually to local nonprofits. Major arts institutions including the New Mexico Museum of Art, SITE Santa Fe, and the Museum of International Folk Art operate alongside hundreds of galleries and smaller cultural organizations that make Santa Fe one of the densest arts environments in the country. The Institute of American Indian Arts, located in Santa Fe, is a unique institution dedicated to higher education in Indigenous arts.</p>
+
+<p>Taos has its own rich arts history, rooted in the Taos Society of Artists that brought early twentieth-century painters to the region and created a tradition of creative community that persists today. The Taos nonprofit sector includes arts organizations, environmental groups focused on the Taos Mountains and the Rio Grande gorge, and human services organizations serving a population that includes both wealthy seasonal residents and working families facing significant economic hardship.</p>
+
+<p>Las Vegas, New Mexico (not to be confused with its Nevada namesake) is the county seat of San Miguel County and a historic center of northern New Mexico culture and commerce. The Las Vegas community foundation and local nonprofits serve a predominantly Hispanic community with deep roots in the region and significant economic need. The Pecos River Valley south of Las Vegas, including Villanueva and Ribera, is one of the most geographically isolated and food-insecure areas in the state.</p>
+
+<p>The Espanola Valley, including Espanola, Alcalde, and surrounding communities, has the highest per-capita rate of opioid overdose deaths of any region in the United States, a crisis that has driven the development of a significant network of behavioral health, harm reduction, and recovery support organizations. The region also has deep traditions of acequia farming, Pueblo cultural life, and community mutual aid.</p>
+
+<p>The 19 Pueblos of northern and western New Mexico, including Taos Pueblo, Ohkay Owingeh, Santa Clara, Nambe, Pojoaque, Tesuque, and others, are distinct sovereign nations with their own tribal governments, cultural institutions, and community organizations. Many nonprofits in the region work in partnership with pueblo governments and Indigenous-led organizations.</p>`,
+  },
+  'southern-new-mexico': {
+    name: 'Southern New Mexico',
+    regionCode: 'southern_nm',
+    metaTitle: 'Southern New Mexico Nonprofits | NM Nonprofits Directory',
+    metaDesc: 'Browse nonprofits in southern New Mexico including Las Cruces, Silver City, Alamogordo, Carlsbad, and the communities of the border region.',
+    editorial: `<p>Southern New Mexico stretches from the Rio Grande valley communities south of Socorro to the Texas and Mexican borders, encompassing the Chihuahuan Desert basin, the Sacramento and Black Range mountains, and the communities of the Mesilla Valley, the Pecos River basin, and the border region. The region's economy is anchored by agriculture, tourism, military installations at White Sands Missile Range and Holloman Air Force Base, and the growing healthcare and education sectors in Las Cruces.</p>
+
+<p>Las Cruces, the second-largest city in New Mexico with a population approaching 110,000, is the center of the region's nonprofit sector. New Mexico State University, located in Las Cruces, is one of the city's largest employers and generates significant nonprofit activity through its Extension programs, research centers, and student volunteer organizations. The Las Cruces community has invested in arts, education, food access, and human services through a network of both established institutions and emerging community organizations.</p>
+
+<p>The border region in Doña Ana County presents both distinctive challenges and distinctive community assets. The US-Mexico border community that spans Las Cruces, Mesilla, Anthony, and the colonias of the lower Mesilla Valley has a large immigrant population, significant economic inequality, and community organizations that have developed to address the specific needs of a binational, mixed-status community. Organizations working on immigration legal services, border humanitarian aid, food access, and economic development operate alongside long-established human services providers.</p>
+
+<p>Silver City, the county seat of Grant County, is a small city with a disproportionately active nonprofit sector. The Commons Grant County, New Mexico Volunteers for the Outdoors, SPIN (Supporting People in Need), and dozens of arts and cultural organizations make Silver City a model of community investment for a town of its size. The surrounding Gila region, with its extraordinary wilderness and ecological significance, has generated a network of conservation nonprofits working to protect one of the least-developed landscapes in the Southwest.</p>
+
+<p>Alamogordo and the communities of Otero County, including Mescalero and Tularosa, are served by nonprofits focused on military family services (given the proximity of Holloman AFB), Mescalero Apache community organizations, and health and human services for a region with limited infrastructure. The Mescalero Apache Tribe has developed sophisticated tribal institutions that serve the community's social, cultural, and economic needs.</p>
+
+<p>Carlsbad and the Permian Basin communities of southeastern New Mexico have been transformed by the oil and gas boom of the past decade, with significant wealth generation coexisting with economic inequality and the social challenges that often accompany rapid resource extraction growth. Nonprofits in the region work on workforce development, youth services, and community quality of life for a population that has changed rapidly.</p>`,
+  },
+  'four-corners': {
+    name: 'Four Corners',
+    regionCode: 'four_corners',
+    metaTitle: 'Four Corners Nonprofits in New Mexico | NM Nonprofits Directory',
+    metaDesc: 'Browse nonprofits in New Mexico\'s Four Corners region including Farmington, Gallup, Shiprock, and communities on and near the Navajo Nation.',
+    editorial: `<p>New Mexico's Four Corners region encompasses the northwestern corner of the state, where New Mexico, Arizona, Colorado, and Utah meet. The region is defined by the Navajo Nation, the largest tribal nation in the United States, and by the agricultural and energy economy of the San Juan Basin. Farmington and Gallup are the two largest cities in the region, serving as commercial and service hubs for a large, predominantly rural population that includes both the cities' own diverse residents and the many Navajo and Pueblo community members who travel to the cities for work, shopping, healthcare, and education.</p>
+
+<p>The Navajo Nation spans more than 27,000 square miles across New Mexico, Arizona, and Utah, with a population of more than 170,000 people. The Nation has its own tribal government, court system, schools, healthcare facilities, and a growing nonprofit sector. Nonprofit organizations working in the Four Corners region often work in close coordination with Navajo Nation tribal departments and chapters, and the most effective organizations are those that center Diné community priorities and leadership.</p>
+
+<p>Gallup, located on the southern border of the Navajo Nation and home to a large Indigenous population, has developed a distinctive network of organizations addressing the city's complex social challenges. Gallup has one of the highest rates of alcohol-related mortality in the country, a consequence of the state's liquor license laws that long prevented alcohol sales on tribal lands while concentrating bars and liquor stores in border towns. Organizations focused on substance use recovery, homelessness, and community health have worked for decades to address these challenges while broader policy debates continue.</p>
+
+<p>Farmington, the largest city in the Four Corners and the hub of the San Juan Basin energy economy, has a nonprofit sector shaped by its role as a service center for a large regional population and by the economic volatility of the oil, gas, and coal industries that have historically dominated the local economy. As the energy transition reshapes the region's economy, organizations focused on workforce development and economic diversification have become increasingly important.</p>
+
+<p>The Jicarilla Apache Nation, located in the mountains of northern Rio Arriba County at the eastern edge of the Four Corners region, has developed tribal institutions and nonprofit organizations focused on cultural preservation, natural resource management, and community wellbeing. The Jicarilla Apache Nation's tribal enterprises, including the Jicarilla Apache Nation Oil and Gas Department and the Jicarilla Apache Lodge, generate revenue that supports tribal programs and services.</p>
+
+<p>Access to services in the Four Corners region is complicated by distance, infrastructure limitations, and the intersection of tribal, state, and federal jurisdictions. Many residents travel hundreds of miles round-trip for healthcare, legal services, or specialized social services. Telemedicine, mobile services, and community health workers have become important strategies for nonprofits trying to reach communities across the region's vast geography.</p>`,
+  },
+  'eastern-new-mexico': {
+    name: 'Eastern New Mexico',
+    regionCode: 'eastern_nm',
+    metaTitle: 'Eastern New Mexico Nonprofits | NM Nonprofits Directory',
+    metaDesc: 'Browse nonprofits in eastern New Mexico including Roswell, Clovis, Portales, Tucumcari, and the communities of the high plains.',
+    editorial: `<p>Eastern New Mexico occupies the high plains that transition from the Rocky Mountain foothills to the Great Plains, a landscape dominated by agriculture, ranching, oil and gas, and the small cities and towns that serve these industries. The region includes Chaves County (Roswell), Curry County (Clovis), Roosevelt County (Portales), Quay County (Tucumcari), Lea County (Hobbs and Lovington), and the communities of the Canadian River valley.</p>
+
+<p>The nonprofit sector in eastern New Mexico is smaller and less densely organized than in the population centers of central and northern New Mexico, but it serves communities with significant need. Rural poverty, limited healthcare access, agricultural economic volatility, and distance from state services create challenges that community organizations work to address with limited resources.</p>
+
+<p>Roswell, the largest city in eastern New Mexico, has a nonprofit community that reflects the city's diverse population and its history as an agricultural center. The Roswell Community Foundation and local human services organizations serve a community that includes a significant Hispanic population, a growing healthcare sector anchored by Chaves County hospitals, and the economic activity generated by Roswell's role as a regional commercial center.</p>
+
+<p>Clovis and Portales, in the eastern plains near the Texas border, serve a community shaped by agriculture (the area is one of the nation's leading dairy and cheese production regions), military activity at Cannon Air Force Base, and Eastern New Mexico University. Nonprofits in the region work on food access, youth development, and economic opportunity for a rural population with limited access to services.</p>
+
+<p>Agricultural communities throughout eastern New Mexico face the challenges of rural depopulation, water scarcity from declining Ogallala Aquifer levels, and the economic pressures on family farms and ranches. Acequia associations, agricultural cooperatives, and rural development organizations work to sustain viable rural communities in the face of these structural challenges.</p>
+
+<p>The Canadian River valley communities of Tucumcari and Clayton are among the most isolated in New Mexico, separated from major population centers by long distances across open plains. The Quay County and Union County communities rely on a thin network of nonprofits, county agencies, and mutual aid traditions to meet needs that in more populated areas would be served by larger institutional providers.</p>
+
+<p>Eastern New Mexico's oil and gas communities, including Hobbs and Lovington in Lea County, have experienced both boom and bust cycles that shape the nonprofit sector. Periods of high oil prices bring economic activity and philanthropic giving from energy companies; downturns reduce corporate support and increase demand for social services. Community foundations and local giving vehicles have worked to build more stable, diversified funding bases for the region's nonprofits.</p>`,
+  },
+};
+
+const { slug } = Astro.params;
+if (!slug || !REGIONS[slug]) return Astro.redirect('/nonprofits/');
+
+const region = REGIONS[slug];
+const listings = await getListingCards({ regionCode: region.regionCode, limit: 300 });
+---
+
+<Layout title={region.metaTitle} description={region.metaDesc}>
+  <div class="container-content py-10 max-w-4xl">
+    <!-- Breadcrumb -->
+    <nav class="text-xs text-gray-400 flex gap-1.5 items-center mb-6">
+      <a href="/" class="hover:text-gray-600">Home</a>
+      <span>/</span>
+      <a href="/nonprofits/" class="hover:text-gray-600">Nonprofits</a>
+      <span>/</span>
+      <span class="text-gray-600">{region.name}</span>
+    </nav>
+
+    <h1 class="text-3xl font-serif font-bold text-gray-900 mb-2">Nonprofits in {region.name}</h1>
+    <p class="text-gray-500 mb-8">{listings.length} organizations serving {region.name}</p>
+
+    <div class="prose prose-gray prose-lg max-w-none mb-12
+      prose-p:text-gray-700 prose-p:leading-relaxed
+      prose-headings:font-serif prose-headings:text-gray-900">
+      <Fragment set:html={region.editorial} />
+    </div>
+
+    <div class="border-t border-gray-100 pt-8">
+      <h2 class="text-xl font-serif font-semibold text-gray-900 mb-6">
+        {listings.length} Nonprofits in {region.name}
+      </h2>
+      {listings.length > 0 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {listings.map((listing) => (
+            <ListingCard listing={listing} />
+          ))}
+        </div>
+      ) : (
+        <p class="text-gray-400 py-12 text-center">No organizations listed yet for this region.</p>
+      )}
+    </div>
+
+    <div class="mt-10 pt-6 border-t border-gray-100">
+      <a href="/nonprofits/" class="text-sm text-turquoise-700 hover:underline">← All nonprofits</a>
+    </div>
+  </div>
+</Layout>

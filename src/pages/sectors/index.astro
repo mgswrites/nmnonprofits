@@ -31,7 +31,7 @@ const sectorImg: Record<string, string> = {
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
       {sectors.map((s) => (
         <a
-          href={`/nonprofits/?sector=${s.slug}`}
+          href={`/sectors/${s.slug}/`}
           class="rounded-xl overflow-hidden bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all group"
         >
           <div class="h-36 overflow-hidden">
