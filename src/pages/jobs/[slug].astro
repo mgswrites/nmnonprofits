@@ -37,12 +37,55 @@ const deadlineStr = job.deadline
   ? new Date(job.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
   : null;
 const postedStr = new Date(job.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+const EMPLOYMENT_TYPE: Record<string, string> = {
+  full_time: 'FULL_TIME', part_time: 'PART_TIME',
+  contract: 'CONTRACTOR', volunteer: 'VOLUNTEER', internship: 'INTERN',
+};
+
+const jobSchema: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'JobPosting',
+  title: job.title,
+  description: job.description ?? `${job.title} at ${job.org_name}`,
+  datePosted: new Date(job.created_at).toISOString().slice(0, 10),
+  employmentType: EMPLOYMENT_TYPE[job.job_type] ?? 'OTHER',
+  hiringOrganization: {
+    '@type': 'Organization',
+    name: job.org_name,
+    ...(listingSlug ? { sameAs: `https://nmnonprofits.com/listing/${listingSlug}/` } : {}),
+  },
+  jobLocation: {
+    '@type': 'Place',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: job.city_name ?? 'New Mexico',
+      addressRegion: 'NM',
+      addressCountry: 'US',
+    },
+  },
+  ...(job.deadline ? { validThrough: new Date(job.deadline).toISOString().slice(0, 10) } : {}),
+  ...(job.salary_min || job.salary_max ? {
+    baseSalary: {
+      '@type': 'MonetaryAmount',
+      currency: 'USD',
+      value: {
+        '@type': 'QuantitativeValue',
+        ...(job.salary_min ? { minValue: job.salary_min } : {}),
+        ...(job.salary_max ? { maxValue: job.salary_max } : {}),
+        unitText: 'YEAR',
+      },
+    },
+  } : {}),
+  ...(job.application_url ? { applicationContact: { '@type': 'ContactPoint', url: job.application_url } } : {}),
+};
 ---
 
 <Layout
   title={`${job.title} at ${job.org_name} | NM Nonprofits Jobs`}
   description={`${job.title} — ${job.org_name}${job.city_name ? `, ${job.city_name}` : ''}. ${JOB_TYPE_LABELS[job.job_type] ?? ''} position.`}
 >
+  <script slot="schema" type="application/ld+json" set:html={JSON.stringify(jobSchema)} />
   <div class="container-content py-10 max-w-3xl">
     <!-- Breadcrumb -->
     <nav class="text-xs text-gray-400 flex gap-1.5 items-center mb-6">

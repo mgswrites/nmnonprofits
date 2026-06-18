@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /submit/confirm/
+Disallow: /jobs/submit/confirm/
+Disallow: /api/
+
+Sitemap: https://nmnonprofits.com/sitemap.xml
