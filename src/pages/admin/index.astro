@@ -1,0 +1,59 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getDb } from '../../lib/db';
+
+const sql = getDb();
+
+const [[subRow], [jobRow], [listingRow]] = await Promise.all([
+  sql<{ pending: string; total: string }[]>`
+    SELECT
+      COUNT(*) FILTER (WHERE status = 'pending') AS pending,
+      COUNT(*) AS total
+    FROM listing_submissions`,
+  sql<{ pending: string; total: string }[]>`
+    SELECT
+      COUNT(*) FILTER (WHERE status = 'pending') AS pending,
+      COUNT(*) AS total
+    FROM job_postings WHERE deleted_at IS NULL`,
+  sql<{ total: string }[]>`SELECT COUNT(*) AS total FROM listings WHERE status = 'approved' AND deleted_at IS NULL`,
+]);
+---
+
+<AdminLayout title="Dashboard">
+  <h1 class="text-2xl font-serif font-bold text-gray-900 mb-8">Dashboard</h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+      <p class="text-3xl font-bold text-turquoise-700">{listingRow.total}</p>
+      <p class="text-sm text-gray-500 mt-1">Approved listings</p>
+      <a href="/nonprofits/" target="_blank" class="text-xs text-turquoise-600 hover:underline mt-2 inline-block">View directory →</a>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+      <p class="text-3xl font-bold {subRow.pending > 0 ? 'text-zia-600' : 'text-gray-400'}">{subRow.pending}</p>
+      <p class="text-sm text-gray-500 mt-1">Pending org submissions</p>
+      {Number(subRow.pending) > 0 && (
+        <a href="/admin/submissions/" class="text-xs text-zia-600 hover:underline mt-2 inline-block font-medium">Review now →</a>
+      )}
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+      <p class="text-3xl font-bold {jobRow.pending > 0 ? 'text-zia-600' : 'text-gray-400'}">{jobRow.pending}</p>
+      <p class="text-sm text-gray-500 mt-1">Pending job postings</p>
+      {Number(jobRow.pending) > 0 && (
+        <a href="/admin/jobs/" class="text-xs text-zia-600 hover:underline mt-2 inline-block font-medium">Review now →</a>
+      )}
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <a href="/admin/submissions/" class="bg-white rounded-xl border border-gray-200 p-5 hover:border-turquoise-300 transition-colors group">
+      <h2 class="font-semibold text-gray-900 group-hover:text-turquoise-700">Org Submissions</h2>
+      <p class="text-sm text-gray-500 mt-1">{subRow.total} total · {subRow.pending} pending review</p>
+    </a>
+    <a href="/admin/jobs/" class="bg-white rounded-xl border border-gray-200 p-5 hover:border-turquoise-300 transition-colors group">
+      <h2 class="font-semibold text-gray-900 group-hover:text-turquoise-700">Job Postings</h2>
+      <p class="text-sm text-gray-500 mt-1">{jobRow.total} total · {jobRow.pending} pending review</p>
+    </a>
+  </div>
+</AdminLayout>

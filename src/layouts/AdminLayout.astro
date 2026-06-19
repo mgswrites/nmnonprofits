@@ -1,0 +1,51 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+
+const navLinks = [
+  { href: '/admin/',             label: 'Dashboard' },
+  { href: '/admin/submissions/', label: 'Submissions' },
+  { href: '/admin/jobs/',        label: 'Jobs' },
+];
+
+const pathname = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} | Admin</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <header class="bg-turquoise-900 text-white">
+      <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div class="flex items-center gap-6">
+          <span class="font-serif font-bold text-sm tracking-wide">NM Nonprofits Admin</span>
+          <nav class="flex gap-4">
+            {navLinks.map(l => (
+              <a href={l.href}
+                class={`text-sm ${pathname === l.href || pathname.startsWith(l.href + '/') && l.href !== '/admin/'
+                  ? 'text-white font-medium' : 'text-turquoise-200 hover:text-white'}`}>
+                {l.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+        <form method="POST" action="/api/admin/logout">
+          <button class="text-xs text-turquoise-300 hover:text-white">Sign out</button>
+        </form>
+      </div>
+    </header>
+    <main class="max-w-6xl mx-auto px-4 py-8">
+      <slot />
+    </main>
+  </body>
+</html>

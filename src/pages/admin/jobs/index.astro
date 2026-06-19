@@ -1,0 +1,114 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getDb } from '../../../lib/db';
+
+const sql = getDb();
+const filter = Astro.url.searchParams.get('status') ?? 'pending';
+
+const jobs = await sql<{
+  id: number; slug: string; title: string; org_name: string;
+  city_name: string | null; region_code: string; job_type: string;
+  salary_min: number | null; salary_max: number | null; salary_note: string | null;
+  description: string | null; application_url: string | null; contact_email: string | null;
+  deadline: string | null; submitter_email: string; status: string; created_at: string;
+}[]>`
+  SELECT * FROM job_postings
+  WHERE status = ${filter} AND deleted_at IS NULL
+  ORDER BY created_at DESC
+  LIMIT 100
+`;
+
+const JOB_LABELS: Record<string, string> = {
+  full_time: 'Full-time', part_time: 'Part-time',
+  contract: 'Contract', volunteer: 'Volunteer', internship: 'Internship',
+};
+
+const STATUS_TABS = [
+  { value: 'pending',  label: 'Pending' },
+  { value: 'approved', label: 'Approved' },
+  { value: 'rejected', label: 'Rejected' },
+];
+---
+
+<AdminLayout title="Job Postings">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-serif font-bold text-gray-900">Job Postings</h1>
+    <div class="flex gap-2">
+      {STATUS_TABS.map(t => (
+        <a href={`/admin/jobs/?status=${t.value}`}
+          class={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            filter === t.value
+              ? 'bg-turquoise-700 text-white'
+              : 'bg-white border border-gray-200 text-gray-600 hover:border-turquoise-300'
+          }`}>
+          {t.label}
+        </a>
+      ))}
+    </div>
+  </div>
+
+  {jobs.length === 0 ? (
+    <div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400">
+      No {filter} job postings.
+    </div>
+  ) : (
+    <div class="space-y-4">
+      {jobs.map(j => (
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap mb-1">
+                <h2 class="font-semibold text-gray-900">{j.title}</h2>
+                <span class="text-xs bg-turquoise-50 text-turquoise-700 px-2 py-0.5 rounded-full">{JOB_LABELS[j.job_type] ?? j.job_type}</span>
+              </div>
+              <p class="text-sm text-gray-600 font-medium">{j.org_name}</p>
+              <p class="text-sm text-gray-500">{j.city_name ? `${j.city_name} · ` : ''}{j.region_code.replace(/_/g,' ')}</p>
+              {(j.salary_min || j.salary_max) && (
+                <p class="text-sm text-gray-500 mt-0.5">
+                  {j.salary_min && j.salary_max ? `$${j.salary_min.toLocaleString()} – $${j.salary_max.toLocaleString()}` :
+                   j.salary_min ? `$${j.salary_min.toLocaleString()}+` :
+                   `Up to $${j.salary_max!.toLocaleString()}`}
+                </p>
+              )}
+              {j.deadline && (
+                <p class="text-xs text-gray-400 mt-0.5">Deadline: {new Date(j.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+              )}
+              {j.description && (
+                <p class="text-sm text-gray-700 mt-3 leading-relaxed line-clamp-3">{j.description}</p>
+              )}
+              {j.application_url && (
+                <a href={j.application_url} target="_blank" rel="noopener noreferrer"
+                  class="text-xs text-turquoise-600 hover:underline mt-2 inline-block">{j.application_url}</a>
+              )}
+              <div class="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-400">
+                <span>From: <a href={`mailto:${j.submitter_email}`} class="text-turquoise-600">{j.submitter_email}</a></span>
+                <span class="mx-2">·</span>
+                <span>{new Date(j.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                {j.status === 'approved' && (
+                  <a href={`/jobs/${j.slug}/`} target="_blank" class="ml-2 text-turquoise-600 hover:underline">View listing →</a>
+                )}
+              </div>
+            </div>
+
+            {filter === 'pending' && (
+              <div class="flex flex-col gap-2 shrink-0">
+                <form method="POST" action={`/api/admin/jobs/${j.id}/approve`}>
+                  <button class="w-full px-4 py-2 bg-turquoise-700 hover:bg-turquoise-600 text-white text-sm font-medium rounded-lg transition-colors">
+                    Approve
+                  </button>
+                </form>
+                <form method="POST" action={`/api/admin/jobs/${j.id}/reject`}>
+                  <button class="w-full px-4 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 text-sm font-medium rounded-lg transition-colors">
+                    Reject
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</AdminLayout>
