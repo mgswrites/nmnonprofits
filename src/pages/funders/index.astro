@@ -6,8 +6,8 @@ import { getFunders, getAllSectors } from '../../lib/queries';
 import { funderTypeLabel, formatCurrency } from '../../lib/utils';
 import type { NmRegion } from '../../lib/types';
 
-const sectorSlug = Astro.url.searchParams.get('sector') ?? undefined;
-const regionCode = (Astro.url.searchParams.get('region') ?? undefined) as NmRegion | undefined;
+const sectorSlug = Astro.url.searchParams.get('sector') || undefined;
+const regionCode = (Astro.url.searchParams.get('region') || undefined) as NmRegion | undefined;
 const page   = Math.max(1, parseInt(Astro.url.searchParams.get('page') ?? '1', 10));
 const limit  = 24;
 const offset = (page - 1) * limit;

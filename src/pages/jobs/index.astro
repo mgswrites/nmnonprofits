@@ -6,8 +6,8 @@ import JobCard from '../../components/job/JobCard.astro';
 import { getJobCards, getAllRegions } from '../../lib/queries';
 
 const url = Astro.url;
-const jobType  = url.searchParams.get('type') ?? undefined;
-const regionCode = url.searchParams.get('region') ?? undefined;
+const jobType  = url.searchParams.get('type') || undefined;
+const regionCode = url.searchParams.get('region') || undefined;
 
 const [jobs, regions] = await Promise.all([
   getJobCards({ jobType, regionCode, limit: 100 }),
