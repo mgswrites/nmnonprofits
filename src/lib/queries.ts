@@ -36,7 +36,14 @@ export async function getAllCities(): Promise<City[]> {
 
 export async function getCitiesWithOrgs(): Promise<City[]> {
   const sql = getDb();
-  return sql<City[]>`SELECT * FROM cities WHERE org_count > 0 ORDER BY org_count DESC, name`;
+  return sql<City[]>`
+    SELECT c.*, COUNT(l.id)::int AS org_count
+    FROM cities c
+    JOIN listings l ON l.city_id = c.id AND l.status = 'approved' AND l.deleted_at IS NULL
+    GROUP BY c.id
+    HAVING COUNT(l.id) > 0
+    ORDER BY COUNT(l.id) DESC, c.name
+  `;
 }
 
 export async function getCityBySlug(slug: string): Promise<City | null> {
@@ -48,6 +55,37 @@ export async function getCityBySlug(slug: string): Promise<City | null> {
 export async function getAllRegions(): Promise<Region[]> {
   const sql = getDb();
   return sql<Region[]>`SELECT * FROM regions ORDER BY name`;
+}
+
+const REGION_PAGE_SLUGS: Record<string, string> = {
+  albuquerque_metro: 'albuquerque-metro',
+  northern_nm:       'northern-new-mexico',
+  southern_nm:       'southern-new-mexico',
+  four_corners:      'four-corners',
+  eastern_nm:        'eastern-new-mexico',
+};
+
+export interface RegionSummary {
+  code: string;
+  name: string;
+  pageSlug: string;
+  org_count: number;
+}
+
+export async function getRegionSummaries(): Promise<RegionSummary[]> {
+  const sql = getDb();
+  const rows = await sql<{ code: string; name: string; org_count: number }[]>`
+    SELECT r.code, r.name, COUNT(l.id)::int AS org_count
+    FROM regions r
+    LEFT JOIN listings l
+      ON l.region_code = r.code
+      AND l.status = 'approved'
+      AND l.deleted_at IS NULL
+    WHERE r.code != 'statewide'
+    GROUP BY r.code, r.name
+    ORDER BY org_count DESC
+  `;
+  return rows.map(r => ({ ...r, pageSlug: REGION_PAGE_SLUGS[r.code] ?? r.code }));
 }
 
 // ----------------------------------------------------------------
@@ -105,6 +143,42 @@ export async function getListingCards(opts: {
 
 export async function getFeaturedListings(limit = 6): Promise<ListingCard[]> {
   return getListingCards({ limit });
+}
+
+export async function getRelatedListings(opts: {
+  listingId: number;
+  cityName: string | null;
+  regionCode: NmRegion | null;
+  limit?: number;
+}): Promise<ListingCard[]> {
+  const sql = getDb();
+  const { listingId, cityName, regionCode, limit = 6 } = opts;
+
+  // Prefer same city; fall back to same region
+  const byCityOrRegion = cityName
+    ? sql`(l.city_name = ${cityName} OR l.region_code::text = ${regionCode ?? null})`
+    : sql`l.region_code::text = ${regionCode ?? null}`;
+
+  return sql<ListingCard[]>`
+    SELECT
+      l.id, l.slug, l.name, l.mission, l.city_name, l.region_code,
+      l.logo_url, l.tier, l.is_verified,
+      COALESCE(
+        json_agg(json_build_object('id', s.id, 'name', s.name, 'slug', s.slug))
+        FILTER (WHERE s.id IS NOT NULL),
+        '[]'
+      ) AS sectors
+    FROM listings l
+    LEFT JOIN listing_sectors ls ON ls.listing_id = l.id
+    LEFT JOIN sectors s          ON s.id = ls.sector_id
+    WHERE l.deleted_at IS NULL
+      AND l.status = 'approved'
+      AND l.id != ${listingId}
+      AND ${byCityOrRegion}
+    GROUP BY l.id
+    ORDER BY l.city_name = ${cityName ?? ''} DESC, l.tier DESC, l.is_verified DESC, RANDOM()
+    LIMIT ${limit}
+  `;
 }
 
 // ----------------------------------------------------------------

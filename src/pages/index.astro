@@ -2,13 +2,14 @@
 import Layout from '../layouts/Layout.astro';
 import ListingCard from '../components/listing/ListingCard.astro';
 import GrantCard from '../components/grant/GrantCard.astro';
-import { getFeaturedListings, getOpenGrants, getSectorSummaries, getCitiesWithOrgs } from '../lib/queries';
+import { getFeaturedListings, getOpenGrants, getSectorSummaries, getCitiesWithOrgs, getRegionSummaries } from '../lib/queries';
 
-const [featuredListings, openGrants, sectors, cities] = await Promise.all([
+const [featuredListings, openGrants, sectors, cities, regions] = await Promise.all([
   getFeaturedListings(6),
   getOpenGrants(6),
   getSectorSummaries(),
   getCitiesWithOrgs(),
+  getRegionSummaries(),
 ]);
 
 const sectorImg: Record<string, string> = {
@@ -180,6 +181,32 @@ const cityLinks = [
               </span>
               <span class="text-xs text-gray-400 mt-1 block">{c.org_count} orgs</span>
             </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Browse by Region -->
+  <section class="bg-gray-50">
+    <div class="bg-turquoise-900 py-8">
+      <div class="container-content text-center">
+        <h2 class="text-white font-serif text-2xl font-semibold mb-1">Browse by Region</h2>
+        <p class="text-turquoise-200 text-sm">Explore the nonprofit landscape across New Mexico's five regions</p>
+      </div>
+    </div>
+    <div class="container-content py-10">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+        {regions.map((r) => (
+          <a
+            href={`/regions/${r.pageSlug}/`}
+            class="group rounded-xl bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all p-5 flex flex-col gap-2"
+          >
+            <span class="text-base font-semibold text-gray-800 group-hover:text-turquoise-700 transition-colors leading-snug">
+              {r.name}
+            </span>
+            <span class="text-xs text-gray-400">{r.org_count.toLocaleString()} organizations</span>
+            <span class="text-xs text-turquoise-600 group-hover:underline mt-auto">Browse region &rarr;</span>
           </a>
         ))}
       </div>

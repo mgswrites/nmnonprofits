@@ -3,7 +3,29 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { getDb } from '../../lib/db';
 import { put } from '@vercel/blob';
+import { Resend } from 'resend';
 import type { ListingSubmissionPayload } from '../../lib/types';
+
+async function sendAdminNotification(name: string, city: string, submitterEmail: string, note?: string) {
+  const key = import.meta.env.RESEND_API_KEY;
+  if (!key || key.startsWith('re_...')) return;
+  const resend = new Resend(key);
+  await resend.emails.send({
+    from: 'NM Nonprofits <noreply@nmnonprofits.com>',
+    to: 'mgswrites@gmail.com',
+    subject: `New submission: ${name}`,
+    text: [
+      `A new organization has been submitted to NM Nonprofits.`,
+      ``,
+      `Organization: ${name}`,
+      `City: ${city}`,
+      `Submitted by: ${submitterEmail}`,
+      note ? `Note: ${note}` : '',
+      ``,
+      `Review at: https://nmnonprofits.com/admin/submissions/`,
+    ].filter(l => l !== undefined).join('\n'),
+  });
+}
 
 export const POST: APIRoute = async ({ request, redirect }) => {
   const formData = await request.formData();
@@ -63,6 +85,9 @@ export const POST: APIRoute = async ({ request, redirect }) => {
       ${logo_url}
     )
   `;
+
+  // Fire-and-forget — never block the redirect on email delivery
+  sendAdminNotification(payload.name, payload.city_name, payload.submitter_email, payload.submitter_note).catch(() => {});
 
   return redirect('/submit/confirm/', 303);
 };

@@ -2,6 +2,28 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { getDb } from '../../../lib/db';
+import { Resend } from 'resend';
+
+async function sendJobNotification(title: string, orgName: string, city: string, submitterEmail: string) {
+  const key = import.meta.env.RESEND_API_KEY;
+  if (!key || key.startsWith('re_...')) return;
+  const resend = new Resend(key);
+  await resend.emails.send({
+    from: 'NM Nonprofits <noreply@nmnonprofits.com>',
+    to: 'mgswrites@gmail.com',
+    subject: `New job posting: ${title} at ${orgName}`,
+    text: [
+      `A new job posting has been submitted to NM Nonprofits.`,
+      ``,
+      `Position: ${title}`,
+      `Organization: ${orgName}`,
+      `City: ${city}`,
+      `Submitted by: ${submitterEmail}`,
+      ``,
+      `Review at: https://nmnonprofits.com/admin/jobs/`,
+    ].join('\n'),
+  });
+}
 
 function toSlug(text: string): string {
   return text
@@ -61,6 +83,8 @@ export const POST: APIRoute = async ({ request, redirect }) => {
       'pending'
     )
   `;
+
+  sendJobNotification(title, org_name, city_name, submitter_email).catch(() => {});
 
   return redirect('/jobs/submit/confirm/', 303);
 };
