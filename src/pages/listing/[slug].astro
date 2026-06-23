@@ -58,7 +58,7 @@ const schema = {
     {sectors[0] && (
       <>
         <span>/</span>
-        <a href={`/nonprofits/${sectors[0].slug}/`} class="hover:text-gray-600">{sectors[0].name}</a>
+        <a href={`/sectors/${sectors[0].slug}/`} class="hover:text-gray-600">{sectors[0].name}</a>
       </>
     )}
     <span>/</span>
@@ -118,7 +118,7 @@ const schema = {
             <h2 class="text-xl font-serif font-semibold mb-3">Issue Areas</h2>
             <div class="flex flex-wrap gap-2">
               {sectors.map((s) => (
-                <a href={`/nonprofits/${s.slug}/`} class="badge bg-turquoise-50 text-turquoise-800 hover:bg-turquoise-100 transition-colors">
+                <a href={`/sectors/${s.slug}/`} class="badge bg-turquoise-50 text-turquoise-800 hover:bg-turquoise-100 transition-colors">
                   {s.name}
                 </a>
               ))}
