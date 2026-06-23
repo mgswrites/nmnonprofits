@@ -6,6 +6,10 @@ import { getAllSectors, getAllRegions } from '../../lib/queries';
 
 const [sectors, regions] = await Promise.all([getAllSectors(), getAllRegions()]);
 
+// Pre-fill from "Claim this listing" link
+const prefillName  = Astro.url.searchParams.get('name')  || '';
+const isClaim      = !!Astro.url.searchParams.get('claim');
+
 const orgTypes = [
   { value: 'nonprofit_501c3',    label: '501(c)(3) Nonprofit' },
   { value: 'nonprofit_501c4',    label: '501(c)(4) Social Welfare Org' },
@@ -22,11 +26,19 @@ const orgTypes = [
   noIndex={true}
 >
   <div class="container-content py-12 max-w-2xl">
-    <h1 class="text-3xl font-serif font-bold mb-2">Submit Your Organization</h1>
-    <p class="text-gray-500 mb-8">
-      All submissions are reviewed before publishing. Basic listings are free.
-      <a href="/guides/listing-tiers/" class="text-turquoise-700 hover:underline">Learn about paid tiers →</a>
-    </p>
+    <h1 class="text-3xl font-serif font-bold mb-2">
+      {isClaim ? 'Claim Your Listing' : 'Submit Your Organization'}
+    </h1>
+    {isClaim ? (
+      <p class="text-gray-500 mb-8">
+        Fill in your organization's details below. We'll review and update the listing within a few days.
+      </p>
+    ) : (
+      <p class="text-gray-500 mb-8">
+        All submissions are reviewed before publishing. Basic listings are free.
+        <a href="/guides/listing-tiers/" class="text-turquoise-700 hover:underline">Learn about paid tiers →</a>
+      </p>
+    )}
 
     <form
       method="POST"
@@ -38,6 +50,7 @@ const orgTypes = [
         <div class="sm:col-span-2">
           <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Organization Name <span class="text-red-500">*</span></label>
           <input id="name" name="name" type="text" required
+            value={prefillName}
             class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500" />
         </div>
 

@@ -112,7 +112,7 @@ export async function getListingCards(opts: {
 }): Promise<ListingCard[]> {
   const sql = getDb();
   const { q, sectorSlug, citySlug, regionCode, limit = 100, offset = 0 } = opts;
-  const search = q ? `%${q}%` : null;
+  const qParam = q ?? null;
 
   return sql<ListingCard[]>`
     SELECT
@@ -130,15 +130,47 @@ export async function getListingCards(opts: {
     LEFT JOIN cities c           ON c.id = l.city_id
     WHERE l.deleted_at IS NULL
       AND l.status = 'approved'
-      AND (${search}::text IS NULL OR l.name ILIKE ${search} OR l.mission ILIKE ${search})
+      AND (${qParam}::text IS NULL
+           OR l.search_vector @@ plainto_tsquery('english', ${qParam}))
       AND (${sectorSlug ?? null}::text IS NULL OR s.slug = ${sectorSlug ?? null})
       AND (${citySlug   ?? null}::text IS NULL OR c.slug = ${citySlug   ?? null})
       AND (${regionCode ?? null}::text IS NULL OR l.region_code::text = ${regionCode ?? null})
     GROUP BY l.id
-    ORDER BY l.tier DESC, l.is_verified DESC, l.name
+    ORDER BY
+      CASE WHEN ${qParam}::text IS NOT NULL
+        THEN ts_rank(l.search_vector, plainto_tsquery('english', COALESCE(${qParam}, '')))
+        ELSE 0
+      END DESC,
+      l.tier DESC, l.is_verified DESC, l.name
     LIMIT  ${limit}
     OFFSET ${offset}
   `;
+}
+
+export async function countListingCards(opts: {
+  q?: string;
+  sectorSlug?: string;
+  citySlug?: string;
+  regionCode?: NmRegion;
+}): Promise<number> {
+  const sql = getDb();
+  const { q, sectorSlug, citySlug, regionCode } = opts;
+  const qParam = q ?? null;
+  const rows = await sql<{ n: number }[]>`
+    SELECT COUNT(DISTINCT l.id)::int AS n
+    FROM listings l
+    LEFT JOIN listing_sectors ls ON ls.listing_id = l.id
+    LEFT JOIN sectors s          ON s.id = ls.sector_id
+    LEFT JOIN cities c           ON c.id = l.city_id
+    WHERE l.deleted_at IS NULL
+      AND l.status = 'approved'
+      AND (${qParam}::text IS NULL
+           OR l.search_vector @@ plainto_tsquery('english', ${qParam}))
+      AND (${sectorSlug ?? null}::text IS NULL OR s.slug = ${sectorSlug ?? null})
+      AND (${citySlug   ?? null}::text IS NULL OR c.slug = ${citySlug   ?? null})
+      AND (${regionCode ?? null}::text IS NULL OR l.region_code::text = ${regionCode ?? null})
+  `;
+  return rows[0]?.n ?? 0;
 }
 
 export async function getFeaturedListings(limit = 6): Promise<ListingCard[]> {

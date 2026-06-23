@@ -3,7 +3,7 @@ export const prerender = false; // SSR: supports ?q, ?city, ?sector, ?region fil
 
 import Layout from '../../layouts/Layout.astro';
 import ListingCard from '../../components/listing/ListingCard.astro';
-import { getListingCards, getAllSectors, getAllCities } from '../../lib/queries';
+import { getListingCards, countListingCards, getAllSectors, getAllCities } from '../../lib/queries';
 import type { NmRegion } from '../../lib/types';
 
 const q          = Astro.url.searchParams.get('q')      || undefined;
@@ -11,18 +11,62 @@ const sectorSlug = Astro.url.searchParams.get('sector') || undefined;
 const citySlug   = Astro.url.searchParams.get('city')   || undefined;
 const regionCode = (Astro.url.searchParams.get('region') || undefined) as NmRegion | undefined;
 const page       = Math.max(1, parseInt(Astro.url.searchParams.get('page') ?? '1', 10));
-const limit      = 100;
+const limit      = 48;
 const offset     = (page - 1) * limit;
 
-const [listings, sectors, cities] = await Promise.all([
-  getListingCards({ q, sectorSlug, citySlug, regionCode, limit, offset }),
+const filterOpts = { q, sectorSlug, citySlug, regionCode };
+
+const [listings, total, sectors, cities] = await Promise.all([
+  getListingCards({ ...filterOpts, limit, offset }),
+  countListingCards(filterOpts),
   getAllSectors(),
   getAllCities(),
 ]);
 
+const totalPages = Math.ceil(total / limit);
+
+// Build query string helper, preserving all active filters
+function pageUrl(p: number) {
+  const params = new URLSearchParams();
+  if (q)          params.set('q', q);
+  if (sectorSlug) params.set('sector', sectorSlug);
+  if (citySlug)   params.set('city', citySlug);
+  if (regionCode) params.set('region', regionCode);
+  if (p > 1)      params.set('page', String(p));
+  const qs = params.toString();
+  return `/nonprofits/${qs ? `?${qs}` : ''}`;
+}
+
 const title = sectorSlug
   ? `${sectors.find((s) => s.slug === sectorSlug)?.name ?? 'Sector'} Nonprofits | New Mexico`
   : 'New Mexico Nonprofits Directory';
+
+// Build page number list for pagination UI (up to 7 slots)
+type PageItem = { type: 'page'; n: number } | { type: 'ellipsis' };
+const pageItems: PageItem[] = [];
+if (totalPages <= 7) {
+  for (let i = 1; i <= totalPages; i++) pageItems.push({ type: 'page', n: i });
+} else {
+  const slots = [1, 0, 0, 0, 0, 0, totalPages]; // 0 = to be filled
+  let start = Math.max(2, page - 2);
+  let end   = Math.min(totalPages - 1, page + 2);
+  if (page <= 4)              { start = 2; end = 6; }
+  if (page >= totalPages - 3) { start = totalPages - 5; end = totalPages - 1; }
+  for (let i = 0; i < 7; i++) {
+    const n = i === 0 ? 1 : i === 6 ? totalPages : start + (i - 1);
+    pageItems.push({ type: 'page', n });
+  }
+  // Replace with ellipsis where gaps exist
+  const result: PageItem[] = [];
+  for (let i = 0; i < pageItems.length; i++) {
+    const cur = (pageItems[i] as { type: 'page'; n: number }).n;
+    const prev = i > 0 ? (pageItems[i - 1] as { type: 'page'; n: number }).n : 0;
+    if (cur - prev > 1) result.push({ type: 'ellipsis' });
+    result.push(pageItems[i]);
+  }
+  pageItems.length = 0;
+  result.forEach(r => pageItems.push(r));
+}
 ---
 
 <Layout title={title} description="Browse New Mexico nonprofits by sector, city, and region.">
@@ -30,7 +74,10 @@ const title = sectorSlug
     <!-- Page header -->
     <div class="mb-8">
       <h1 class="text-3xl font-serif font-bold text-gray-900">{title}</h1>
-      <p class="text-gray-500 mt-1 text-sm">{listings.length} organizations found</p>
+      <p class="text-gray-500 mt-1 text-sm">
+        {total.toLocaleString()} organization{total !== 1 ? 's' : ''} found
+        {totalPages > 1 && ` · page ${page} of ${totalPages}`}
+      </p>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-8">
@@ -80,17 +127,28 @@ const title = sectorSlug
         )}
 
         <!-- Pagination -->
-        {listings.length === limit && (
-          <div class="flex justify-center gap-3 mt-10">
-            {page > 1 && (
-              <a href={`?page=${page - 1}${sectorSlug ? `&sector=${sectorSlug}` : ''}${citySlug ? `&city=${citySlug}` : ''}`} class="btn-secondary">
-                Previous
-              </a>
-            )}
-            <a href={`?page=${page + 1}${sectorSlug ? `&sector=${sectorSlug}` : ''}${citySlug ? `&city=${citySlug}` : ''}`} class="btn-primary">
-              Next page
-            </a>
-          </div>
+        {totalPages > 1 && (
+          <nav class="flex items-center justify-center gap-2 mt-10" aria-label="Pagination">
+            {page > 1
+              ? <a href={pageUrl(page - 1)} class="btn-secondary px-4">← Previous</a>
+              : <span class="btn-secondary px-4 opacity-40 cursor-default">← Previous</span>
+            }
+
+            <div class="flex items-center gap-1">
+              {pageItems.map((item) =>
+                item.type === 'ellipsis'
+                  ? <span class="px-2 text-gray-400">…</span>
+                  : item.n === page
+                    ? <span class="w-9 h-9 flex items-center justify-center rounded-lg bg-turquoise-700 text-white text-sm font-semibold">{item.n}</span>
+                    : <a href={pageUrl(item.n)} class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-sm text-gray-600 hover:border-turquoise-300 hover:text-turquoise-700 transition-colors">{item.n}</a>
+              )}
+            </div>
+
+            {page < totalPages
+              ? <a href={pageUrl(page + 1)} class="btn-secondary px-4">Next →</a>
+              : <span class="btn-secondary px-4 opacity-40 cursor-default">Next →</span>
+            }
+          </nav>
         )}
       </div>
     </div>
