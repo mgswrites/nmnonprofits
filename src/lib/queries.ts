@@ -185,11 +185,8 @@ export async function getRelatedListings(opts: {
 }): Promise<ListingCard[]> {
   const sql = getDb();
   const { listingId, cityName, regionCode, limit = 6 } = opts;
-
-  // Prefer same city; fall back to same region
-  const byCityOrRegion = cityName
-    ? sql`(l.city_name = ${cityName} OR l.region_code::text = ${regionCode ?? null})`
-    : sql`l.region_code::text = ${regionCode ?? null}`;
+  const cityParam   = cityName   ?? null;
+  const regionParam = regionCode ?? null;
 
   return sql<ListingCard[]>`
     SELECT
@@ -206,9 +203,17 @@ export async function getRelatedListings(opts: {
     WHERE l.deleted_at IS NULL
       AND l.status = 'approved'
       AND l.id != ${listingId}
-      AND ${byCityOrRegion}
+      AND (
+        (${cityParam}::text IS NOT NULL
+          AND (l.city_name = ${cityParam} OR l.region_code::text = ${regionParam}))
+        OR
+        (${cityParam}::text IS NULL
+          AND l.region_code::text = ${regionParam})
+      )
     GROUP BY l.id
-    ORDER BY l.city_name = ${cityName ?? ''} DESC, l.tier DESC, l.is_verified DESC, RANDOM()
+    ORDER BY
+      CASE WHEN l.city_name = ${cityParam} THEN 0 ELSE 1 END,
+      l.tier DESC, l.is_verified DESC, RANDOM()
     LIMIT ${limit}
   `;
 }
