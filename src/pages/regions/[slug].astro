@@ -154,7 +154,9 @@ const totalOrgs = cities.reduce((sum, c) => sum + (c.org_count ?? 0), 0);
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
-                  <div class="w-full h-full bg-turquoise-700 group-hover:bg-turquoise-600 transition-colors" />
+                  <div class="w-full h-full bg-turquoise-700 group-hover:bg-turquoise-600 transition-colors flex items-center justify-center">
+                    <img src="/favicon.svg" alt="" aria-hidden="true" class="h-14 w-14 opacity-40" />
+                  </div>
                 )}
               </div>
               <div class="p-3 text-center">
