@@ -110,14 +110,6 @@ const region = REGIONS[slug];
 const cities = await getCitiesInRegion(region.regionCode);
 const totalOrgs = cities.reduce((sum, c) => sum + (c.org_count ?? 0), 0);
 
-const regionFallback: Record<string, string> = {
-  albuquerque_metro: 'https://images.unsplash.com/photo-1636317822983-fe41c4abcfcd?w=800&h=400&fit=crop&auto=format',
-  northern_nm:       'https://images.unsplash.com/photo-1610941817754-96b43568c722?w=800&h=400&fit=crop&auto=format',
-  southern_nm:       '/images/cities/las-cruces.jpg',
-  four_corners:      '/images/cities/gallup.jpg',
-  eastern_nm:        '/images/cities/las-vegas-olos.jpg',
-  statewide:         '/images/cities/santa-fe.jpg',
-};
 ---
 
 <Layout title={region.metaTitle} description={region.metaDesc}>
@@ -162,11 +154,7 @@ const regionFallback: Record<string, string> = {
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
-                  <div class="w-full h-full bg-turquoise-50 flex items-center justify-center group-hover:bg-turquoise-100 transition-colors">
-                    <svg viewBox="0 0 100 112" class="h-16 text-turquoise-300" fill="currentColor" aria-hidden="true">
-                      <path d="M 5 5 L 72 5 L 72 18 L 95 18 L 95 100 L 65 100 L 65 107 L 48 107 L 48 100 L 5 100 Z" />
-                    </svg>
-                  </div>
+                  <div class="w-full h-full bg-turquoise-700 group-hover:bg-turquoise-600 transition-colors" />
                 )}
               </div>
               <div class="p-3 text-center">
