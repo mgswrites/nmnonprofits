@@ -19,7 +19,7 @@ const cityImages: Record<string, string> = {
   'portales':                  U('1613939599818-a8b12ebbcfa9'),  // Eastern NM desert
   'hobbs':                     U('1613939599818-a8b12ebbcfa9'),  // Eastern NM desert
   'ruidoso':                   U('1610657269529-cce0608d4ca9'),  // Cimarron Canyon forest
-  'raton':                     U('1610657269529-cce0608d4ca9'),  // Cimarron Canyon / Raton Pass
+  'raton':                     U('1589953037800-5ef26bcdffa3'),  // Cimarron Canyon cliffs, Ute Park NM (near Raton)
   'truth-or-consequences':     U('1619059426109-317721f88604'),  // Bosque del Apache
   'espanola':                  U('1589691135456-1a204ce45fb0'),  // Rio Chama valley
   'tucumcari':                 U('1703009512285-cb0ca125438d'),  // Route 66 neon signs
