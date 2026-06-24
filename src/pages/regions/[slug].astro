@@ -152,14 +152,22 @@ const regionFallback: Record<string, string> = {
               class="group rounded-xl overflow-hidden bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all"
             >
               <div class="h-28 overflow-hidden">
-                <img
-                  src={c.hero_image_url ?? regionFallback[region.regionCode] ?? '/images/cities/silver-city.jpg'}
-                  alt={c.name}
-                  width="400"
-                  height="224"
-                  loading="lazy"
-                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+                {c.hero_image_url ? (
+                  <img
+                    src={c.hero_image_url}
+                    alt={c.name}
+                    width="400"
+                    height="224"
+                    loading="lazy"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div class="w-full h-full bg-turquoise-50 flex items-center justify-center group-hover:bg-turquoise-100 transition-colors">
+                    <svg viewBox="0 0 100 112" class="h-16 text-turquoise-300" fill="currentColor" aria-hidden="true">
+                      <path d="M 5 5 L 72 5 L 72 18 L 95 18 L 95 100 L 65 100 L 65 107 L 48 107 L 48 100 L 5 100 Z" />
+                    </svg>
+                  </div>
+                )}
               </div>
               <div class="p-3 text-center">
                 <span class="text-sm font-semibold text-gray-800 group-hover:text-turquoise-700 transition-colors leading-snug block">
