@@ -36,10 +36,17 @@ const regionCards = [
   },
   {
     label:  'Southern New Mexico',
-    cities: 'Las Cruces, Roswell, Carlsbad, Alamogordo, eastern plains',
+    cities: 'Las Cruces, Silver City, Alamogordo, Socorro',
     href:   `/nonprofits/?sector=${slug}&region=southern_nm`,
     img:    'https://images.unsplash.com/photo-1628328052245-6a16b95499ef?w=1200&h=500&fit=crop&auto=format',
-    count:  (regionCounts['southern_nm'] ?? 0) + (regionCounts['eastern_nm'] ?? 0),
+    count:  regionCounts['southern_nm'] ?? 0,
+  },
+  {
+    label:  'Eastern New Mexico',
+    cities: 'Roswell, Clovis, Carlsbad, Hobbs, Tucumcari',
+    href:   `/nonprofits/?sector=${slug}&region=eastern_nm`,
+    img:    'https://images.unsplash.com/photo-1654450706032-46e2a14d6c91?w=1200&h=500&fit=crop&auto=format',
+    count:  regionCounts['eastern_nm'] ?? 0,
   },
 ];
 
@@ -235,7 +242,8 @@ const schema = {
     </nav>
 
     <h1 class="text-3xl font-serif font-bold text-gray-900 mb-2">{sector.name} Nonprofits in New Mexico</h1>
-    <p class="text-gray-500 mb-8">{totalOrgs.toLocaleString()} organizations statewide &mdash; {sector.description}</p>
+    <p class="text-gray-500 mb-4">{totalOrgs.toLocaleString()} organizations statewide</p>
+    <p class="text-gray-500 mb-8">{sector.description}</p>
 
     {editorial && (
       <div class="prose prose-gray prose-lg max-w-none mb-12
@@ -247,7 +255,7 @@ const schema = {
 
     <div class="border-t border-gray-100 pt-8">
       <h2 class="text-xl font-serif font-semibold text-gray-900 mb-6">Browse by Region</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
         {regionCards.map((r) => (
           <a
             href={r.href}
