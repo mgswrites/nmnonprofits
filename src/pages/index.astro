@@ -2,13 +2,12 @@
 import Layout from '../layouts/Layout.astro';
 import ListingCard from '../components/listing/ListingCard.astro';
 import GrantCard from '../components/grant/GrantCard.astro';
-import { getFeaturedListings, getOpenGrants, getSectorSummaries, getCitiesWithOrgs, getRegionSummaries } from '../lib/queries';
+import { getFeaturedListings, getOpenGrants, getSectorSummaries, getRegionSummaries } from '../lib/queries';
 
-const [featuredListings, openGrants, sectors, cities, regions] = await Promise.all([
+const [featuredListings, openGrants, sectors, regions] = await Promise.all([
   getFeaturedListings(6),
   getOpenGrants(6),
   getSectorSummaries(),
-  getCitiesWithOrgs(),
   getRegionSummaries(),
 ]);
 
@@ -27,14 +26,38 @@ const sectorImg: Record<string, string> = {
   'substance-use-recovery':   '/images/sectors/substance-use-recovery.jpg',
 };
 
-const regionFallback: Record<string, string> = {
-  albuquerque_metro: 'https://images.unsplash.com/photo-1636317822983-fe41c4abcfcd?w=1200&h=500&fit=crop&auto=format',
-  northern_nm:       '/images/cities/taos.jpg',
-  southern_nm:       '/images/cities/las-cruces.jpg',
-  four_corners:      '/images/cities/gallup.jpg',
-  eastern_nm:        '/images/cities/las-vegas-olos.jpg',
-  statewide:         '/images/cities/santa-fe.jpg',
-};
+const countByCode = Object.fromEntries(regions.map(r => [r.code, r.org_count]));
+
+const regionCards = [
+  {
+    label:    'Northern New Mexico',
+    cities:   'Santa Fe, Taos, Los Alamos, Española',
+    href:     '/regions/northern-new-mexico/',
+    img:      '/images/cities/taos.jpg',
+    count:    countByCode['northern_nm'] ?? 0,
+  },
+  {
+    label:    'Northwestern / Western NM',
+    cities:   'Farmington, Gallup, Grants, Four Corners communities',
+    href:     '/regions/four-corners/',
+    img:      'https://images.unsplash.com/photo-1637981107571-de24baf9a2b0?w=1200&h=500&fit=crop&auto=format',
+    count:    countByCode['four_corners'] ?? 0,
+  },
+  {
+    label:    'Central New Mexico',
+    cities:   'Albuquerque, Rio Rancho, Bernalillo, Los Lunas',
+    href:     '/regions/albuquerque-metro/',
+    img:      'https://images.unsplash.com/photo-1596466738386-42fcaf328caa?w=1200&h=500&fit=crop&auto=format',
+    count:    countByCode['albuquerque_metro'] ?? 0,
+  },
+  {
+    label:    'Southern New Mexico',
+    cities:   'Las Cruces, Roswell, Carlsbad, Alamogordo, eastern plains',
+    href:     '/regions/southern-new-mexico/',
+    img:      'https://images.unsplash.com/photo-1628328052245-6a16b95499ef?w=1200&h=500&fit=crop&auto=format',
+    count:    (countByCode['southern_nm'] ?? 0) + (countByCode['eastern_nm'] ?? 0),
+  },
+];
 
 const cityLinks = [
   { label: 'Albuquerque',   href: '/cities/albuquerque/' },
@@ -149,63 +172,40 @@ const cityLinks = [
     </div>
   </section>
 
-  <!-- Browse by City -->
+  <!-- Browse by Region -->
   <section>
     <div class="bg-zia-700 py-8">
       <div class="container-content text-center">
-        <h2 class="text-white font-serif text-2xl font-semibold mb-1">Browse by City</h2>
-        <p class="text-zia-200 text-sm">Find nonprofits serving your community</p>
+        <h2 class="text-white font-serif text-2xl font-semibold mb-1">Browse by Region</h2>
+        <p class="text-zia-200 text-sm">Explore nonprofits across New Mexico's four regions</p>
       </div>
     </div>
     <div class="container-content py-10">
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {cities.map((c) => (
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {regionCards.map((r) => (
           <a
-            href={`/cities/${c.slug}/`}
-            class="rounded-xl overflow-hidden bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all group"
+            href={r.href}
+            class="group rounded-2xl overflow-hidden bg-white border border-gray-100 hover:shadow-lg transition-all"
           >
-            <div class="h-28 overflow-hidden">
+            <div class="h-48 overflow-hidden relative">
               <img
-                src={c.hero_image_url ?? regionFallback[c.region_code ?? ''] ?? '/images/cities/silver-city.jpg'}
-                alt={c.name}
-                width="400"
-                height="224"
+                src={r.img}
+                alt={r.label}
+                width="600"
+                height="384"
                 loading="lazy"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent" />
+              <div class="absolute bottom-0 left-0 p-4">
+                <h3 class="text-white font-serif font-bold text-lg leading-tight">{r.label}</h3>
+                <p class="text-white/75 text-xs mt-0.5">{r.count.toLocaleString()} organizations</p>
+              </div>
             </div>
-            <div class="p-3 text-center">
-              <span class="text-sm font-semibold text-gray-800 group-hover:text-turquoise-700 transition-colors leading-snug block">
-                {c.name}
-              </span>
-              <span class="text-xs text-gray-400 mt-1 block">{c.org_count} orgs</span>
+            <div class="px-4 py-3 flex items-center justify-between">
+              <p class="text-sm text-gray-500 leading-snug">{r.cities}</p>
+              <span class="text-turquoise-600 text-sm ml-3 shrink-0 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
             </div>
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- Browse by Region -->
-  <section class="bg-gray-50">
-    <div class="bg-turquoise-900 py-8">
-      <div class="container-content text-center">
-        <h2 class="text-white font-serif text-2xl font-semibold mb-1">Browse by Region</h2>
-        <p class="text-turquoise-200 text-sm">Explore the nonprofit landscape across New Mexico's five regions</p>
-      </div>
-    </div>
-    <div class="container-content py-10">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
-        {regions.map((r) => (
-          <a
-            href={`/regions/${r.pageSlug}/`}
-            class="group rounded-xl bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all p-5 flex flex-col gap-2"
-          >
-            <span class="text-base font-semibold text-gray-800 group-hover:text-turquoise-700 transition-colors leading-snug">
-              {r.name}
-            </span>
-            <span class="text-xs text-gray-400">{r.org_count.toLocaleString()} organizations</span>
-            <span class="text-xs text-turquoise-600 group-hover:underline mt-auto">Browse region &rarr;</span>
           </a>
         ))}
       </div>
