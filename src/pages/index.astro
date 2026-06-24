@@ -27,22 +27,13 @@ const sectorImg: Record<string, string> = {
   'substance-use-recovery':   '/images/sectors/substance-use-recovery.jpg',
 };
 
-const cityImg: Record<string, string> = {
-  'albuquerque': '/images/cities/albuquerque.jpg',
-  'santa-fe':    '/images/cities/santa-fe.jpg',
-  'taos':        '/images/cities/taos.jpg',
-  'las-cruces':  '/images/cities/las-cruces.jpg',
-  'gallup':      '/images/cities/gallup.jpg',
-  'silver-city': '/images/cities/silver-city.jpg',
-  'las-vegas':   '/images/cities/las-vegas-olos.jpg',
-  // Region-based fallbacks for cities without a dedicated photo
-  'farmington':  '/images/cities/gallup.jpg',
-  'roswell':     '/images/cities/las-vegas-olos.jpg',
-  'carlsbad':    '/images/cities/las-cruces.jpg',
-  'rio-rancho':  '/images/cities/albuquerque.jpg',
-  'los-alamos':  '/images/cities/santa-fe.jpg',
-  'alamogordo':  '/images/cities/las-cruces.jpg',
-  'clovis':      '/images/cities/las-vegas-olos.jpg',
+const regionFallback: Record<string, string> = {
+  albuquerque_metro: '/images/cities/albuquerque.jpg',
+  northern_nm:       '/images/cities/taos.jpg',
+  southern_nm:       '/images/cities/las-cruces.jpg',
+  four_corners:      '/images/cities/gallup.jpg',
+  eastern_nm:        '/images/cities/las-vegas-olos.jpg',
+  statewide:         '/images/cities/santa-fe.jpg',
 };
 
 const cityLinks = [
@@ -175,7 +166,7 @@ const cityLinks = [
           >
             <div class="h-28 overflow-hidden">
               <img
-                src={cityImg[c.slug] ?? '/images/cities/albuquerque.jpg'}
+                src={c.hero_image_url ?? regionFallback[c.region_code ?? ''] ?? '/images/cities/silver-city.jpg'}
                 alt={c.name}
                 width="400"
                 height="224"
