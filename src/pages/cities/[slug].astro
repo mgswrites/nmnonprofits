@@ -14,8 +14,8 @@ if (!slug) return Astro.redirect('/');
 const sql = getDb();
 
 const [cityRows, listings] = await Promise.all([
-  sql<{ id: number; name: string; slug: string; description: string | null; hero_image_url: string | null; meta_title: string | null; meta_description: string | null }[]>`
-    SELECT id, name, slug, description, hero_image_url, meta_title, meta_description
+  sql<{ id: number; name: string; slug: string; description: string | null; hero_image_url: string | null; meta_title: string | null; meta_description: string | null; region_code: string | null }[]>`
+    SELECT id, name, slug, description, hero_image_url, meta_title, meta_description, region_code
     FROM cities WHERE slug = ${slug} LIMIT 1
   `,
   getListingCards({ citySlug: slug, limit: 200 }),
@@ -27,7 +27,18 @@ if (!city) return Astro.redirect('/', 302);
 const metaTitle = buildMetaTitle(city.meta_title ?? `Nonprofits in ${city.name}, NM | NM Nonprofits`);
 const metaDesc  = city.meta_description ?? `Browse nonprofit organizations in ${city.name}, New Mexico. Find local charities, foundations, and community groups.`;
 
-const heroImg = city.hero_image_url ?? '/images/cities/albuquerque.jpg';
+// Region-based fallback images so every city doesn't show the Albuquerque balloon
+const regionFallback: Record<string, string> = {
+  albuquerque_metro: '/images/cities/albuquerque.jpg',
+  northern_nm:       '/images/cities/taos.jpg',
+  southern_nm:       '/images/cities/las-cruces.jpg',
+  four_corners:      '/images/cities/gallup.jpg',
+  eastern_nm:        '/images/cities/las-vegas-olos.jpg',
+  statewide:         '/images/cities/santa-fe.jpg',
+};
+const heroImg = city.hero_image_url
+  ?? regionFallback[city.region_code ?? '']
+  ?? '/images/cities/silver-city.jpg';
 ---
 
 <Layout title={metaTitle} description={metaDesc}>
