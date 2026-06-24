@@ -51,7 +51,11 @@ const sectorImg: Record<string, string> = {
             <div class="flex flex-wrap gap-3 text-xs text-gray-400 mt-1.5">
               <span>{s.org_count} nonprofits</span>
               {s.active_grant_count > 0 && (
-                <span class="text-turquoise-600 font-medium">{s.active_grant_count} open grants</span>
+                <a
+                  href={`/grants/?sector=${s.slug}`}
+                  class="text-turquoise-600 font-medium hover:underline"
+                  onclick="event.stopPropagation()"
+                >{s.active_grant_count} open grants</a>
               )}
             </div>
           </div>
