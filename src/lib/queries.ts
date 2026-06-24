@@ -46,6 +46,19 @@ export async function getCitiesWithOrgs(): Promise<City[]> {
   `;
 }
 
+export async function getCitiesInRegion(regionCode: string): Promise<City[]> {
+  const sql = getDb();
+  return sql<City[]>`
+    SELECT c.*, COUNT(l.id)::int AS org_count
+    FROM cities c
+    JOIN listings l ON l.city_id = c.id AND l.status = 'approved' AND l.deleted_at IS NULL
+    WHERE c.region_code = ${regionCode}
+    GROUP BY c.id
+    HAVING COUNT(l.id) > 0
+    ORDER BY COUNT(l.id) DESC, c.name
+  `;
+}
+
 export async function getCityBySlug(slug: string): Promise<City | null> {
   const sql = getDb();
   const rows = await sql<City[]>`SELECT * FROM cities WHERE slug = ${slug} LIMIT 1`;

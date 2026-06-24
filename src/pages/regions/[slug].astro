@@ -2,8 +2,7 @@
 export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
-import { getListingCards } from '../../lib/queries';
-import ListingCard from '../../components/listing/ListingCard.astro';
+import { getCitiesInRegion } from '../../lib/queries';
 import type { NmRegion } from '../../lib/types';
 
 const REGIONS: Record<string, {
@@ -108,7 +107,17 @@ const { slug } = Astro.params;
 if (!slug || !REGIONS[slug]) return Astro.redirect('/nonprofits/');
 
 const region = REGIONS[slug];
-const listings = await getListingCards({ regionCode: region.regionCode, limit: 300 });
+const cities = await getCitiesInRegion(region.regionCode);
+const totalOrgs = cities.reduce((sum, c) => sum + (c.org_count ?? 0), 0);
+
+const regionFallback: Record<string, string> = {
+  albuquerque_metro: 'https://images.unsplash.com/photo-1636317822983-fe41c4abcfcd?w=800&h=400&fit=crop&auto=format',
+  northern_nm:       '/images/cities/taos.jpg',
+  southern_nm:       '/images/cities/las-cruces.jpg',
+  four_corners:      '/images/cities/gallup.jpg',
+  eastern_nm:        '/images/cities/las-vegas-olos.jpg',
+  statewide:         '/images/cities/santa-fe.jpg',
+};
 ---
 
 <Layout title={region.metaTitle} description={region.metaDesc}>
@@ -123,7 +132,7 @@ const listings = await getListingCards({ regionCode: region.regionCode, limit: 3
     </nav>
 
     <h1 class="text-3xl font-serif font-bold text-gray-900 mb-2">Nonprofits in {region.name}</h1>
-    <p class="text-gray-500 mb-8">{listings.length} organizations serving {region.name}</p>
+    <p class="text-gray-500 mb-8">{totalOrgs.toLocaleString()} organizations across {cities.length} {cities.length === 1 ? 'community' : 'communities'}</p>
 
     <div class="prose prose-gray prose-lg max-w-none mb-12
       prose-p:text-gray-700 prose-p:leading-relaxed
@@ -133,16 +142,36 @@ const listings = await getListingCards({ regionCode: region.regionCode, limit: 3
 
     <div class="border-t border-gray-100 pt-8">
       <h2 class="text-xl font-serif font-semibold text-gray-900 mb-6">
-        {listings.length} Nonprofits in {region.name}
+        Browse by City
       </h2>
-      {listings.length > 0 ? (
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {listings.map((listing) => (
-            <ListingCard listing={listing} />
+      {cities.length > 0 ? (
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {cities.map((c) => (
+            <a
+              href={`/cities/${c.slug}/`}
+              class="group rounded-xl overflow-hidden bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all"
+            >
+              <div class="h-28 overflow-hidden">
+                <img
+                  src={c.hero_image_url ?? regionFallback[region.regionCode] ?? '/images/cities/silver-city.jpg'}
+                  alt={c.name}
+                  width="400"
+                  height="224"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div class="p-3 text-center">
+                <span class="text-sm font-semibold text-gray-800 group-hover:text-turquoise-700 transition-colors leading-snug block">
+                  {c.name}
+                </span>
+                <span class="text-xs text-gray-400 mt-0.5 block">{c.org_count} orgs</span>
+              </div>
+            </a>
           ))}
         </div>
       ) : (
-        <p class="text-gray-400 py-12 text-center">No organizations listed yet for this region.</p>
+        <p class="text-gray-400 py-12 text-center">No communities listed yet for this region.</p>
       )}
     </div>
 
