@@ -65,6 +65,19 @@ export async function getCityBySlug(slug: string): Promise<City | null> {
   return rows[0] ?? null;
 }
 
+export async function getSectorRegionCounts(sectorSlug: string): Promise<Record<string, number>> {
+  const sql = getDb();
+  const rows = await sql<{ region_code: string; org_count: number }[]>`
+    SELECT l.region_code, COUNT(DISTINCT l.id)::int AS org_count
+    FROM listings l
+    JOIN listing_sectors ls ON ls.listing_id = l.id
+    JOIN sectors s ON s.id = ls.sector_id
+    WHERE l.status = 'approved' AND l.deleted_at IS NULL AND s.slug = ${sectorSlug}
+    GROUP BY l.region_code
+  `;
+  return Object.fromEntries(rows.map(r => [r.region_code, r.org_count]));
+}
+
 export async function getAllRegions(): Promise<Region[]> {
   const sql = getDb();
   return sql<Region[]>`SELECT * FROM regions ORDER BY name`;

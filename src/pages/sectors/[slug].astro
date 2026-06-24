@@ -2,9 +2,7 @@
 export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
-import { getSectorBySlug } from '../../lib/queries';
-import { getListingCards } from '../../lib/queries';
-import ListingCard from '../../components/listing/ListingCard.astro';
+import { getSectorBySlug, getSectorRegionCounts } from '../../lib/queries';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/sectors/');
@@ -12,7 +10,40 @@ if (!slug) return Astro.redirect('/sectors/');
 const sector = await getSectorBySlug(slug);
 if (!sector) return Astro.redirect('/sectors/', 301);
 
-const listings = await getListingCards({ sectorSlug: slug, limit: 200 });
+const regionCounts = await getSectorRegionCounts(slug);
+
+const regionCards = [
+  {
+    label:  'Northern New Mexico',
+    cities: 'Santa Fe, Taos, Los Alamos, Española, Raton',
+    href:   `/nonprofits/?sector=${slug}&region=northern_nm`,
+    img:    '/images/cities/taos.jpg',
+    count:  regionCounts['northern_nm'] ?? 0,
+  },
+  {
+    label:  'Northwestern / Western NM',
+    cities: 'Farmington, Gallup, Grants, Four Corners communities',
+    href:   `/nonprofits/?sector=${slug}&region=four_corners`,
+    img:    'https://images.unsplash.com/photo-1637981107571-de24baf9a2b0?w=1200&h=500&fit=crop&auto=format',
+    count:  regionCounts['four_corners'] ?? 0,
+  },
+  {
+    label:  'Central New Mexico',
+    cities: 'Albuquerque, Rio Rancho, Bernalillo, Los Lunas',
+    href:   `/nonprofits/?sector=${slug}&region=albuquerque_metro`,
+    img:    'https://images.unsplash.com/photo-1596466738386-42fcaf328caa?w=1200&h=500&fit=crop&auto=format',
+    count:  regionCounts['albuquerque_metro'] ?? 0,
+  },
+  {
+    label:  'Southern New Mexico',
+    cities: 'Las Cruces, Roswell, Carlsbad, Alamogordo, eastern plains',
+    href:   `/nonprofits/?sector=${slug}&region=southern_nm`,
+    img:    'https://images.unsplash.com/photo-1628328052245-6a16b95499ef?w=1200&h=500&fit=crop&auto=format',
+    count:  (regionCounts['southern_nm'] ?? 0) + (regionCounts['eastern_nm'] ?? 0),
+  },
+];
+
+const totalOrgs = Object.values(regionCounts).reduce((s, n) => s + n, 0);
 
 const EDITORIAL: Record<string, string> = {
   'animal-welfare': `
@@ -204,7 +235,7 @@ const schema = {
     </nav>
 
     <h1 class="text-3xl font-serif font-bold text-gray-900 mb-2">{sector.name} Nonprofits in New Mexico</h1>
-    <p class="text-gray-500 mb-8">{sector.description}</p>
+    <p class="text-gray-500 mb-8">{totalOrgs.toLocaleString()} organizations statewide &mdash; {sector.description}</p>
 
     {editorial && (
       <div class="prose prose-gray prose-lg max-w-none mb-12
@@ -215,19 +246,35 @@ const schema = {
     )}
 
     <div class="border-t border-gray-100 pt-8">
-      <h2 class="text-xl font-serif font-semibold text-gray-900 mb-6">
-        {listings.length} {sector.name} {listings.length === 1 ? 'Organization' : 'Organizations'} in New Mexico
-      </h2>
-
-      {listings.length > 0 ? (
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {listings.map((listing) => (
-            <ListingCard listing={listing} />
-          ))}
-        </div>
-      ) : (
-        <p class="text-gray-400 py-12 text-center">No organizations listed yet in this sector.</p>
-      )}
+      <h2 class="text-xl font-serif font-semibold text-gray-900 mb-6">Browse by Region</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {regionCards.map((r) => (
+          <a
+            href={r.href}
+            class="group rounded-2xl overflow-hidden bg-white border border-gray-100 hover:shadow-lg transition-all"
+          >
+            <div class="h-40 overflow-hidden relative">
+              <img
+                src={r.img}
+                alt={r.label}
+                width="600"
+                height="320"
+                loading="lazy"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent" />
+              <div class="absolute bottom-0 left-0 p-4">
+                <h3 class="text-white font-serif font-bold text-base leading-tight">{r.label}</h3>
+                <p class="text-white/75 text-xs mt-0.5">{r.count.toLocaleString()} organizations</p>
+              </div>
+            </div>
+            <div class="px-4 py-3 flex items-center justify-between">
+              <p class="text-sm text-gray-500 leading-snug">{r.cities}</p>
+              <span class="text-turquoise-600 text-sm ml-3 shrink-0 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+            </div>
+          </a>
+        ))}
+      </div>
     </div>
 
     <div class="mt-10 pt-6 border-t border-gray-100 flex flex-wrap gap-4 justify-between items-center">
