@@ -3,7 +3,7 @@ export const prerender = false; // SSR: supports ?q, ?city, ?sector, ?region fil
 
 import Layout from '../../layouts/Layout.astro';
 import ListingCard from '../../components/listing/ListingCard.astro';
-import { getListingCards, countListingCards, getAllSectors, getAllCities } from '../../lib/queries';
+import { getListingCards, countListingCards, getAllSectors, getAllCities, getSectorRegionCounts } from '../../lib/queries';
 import type { NmRegion } from '../../lib/types';
 
 const q          = Astro.url.searchParams.get('q')      || undefined;
@@ -14,16 +14,58 @@ const page       = Math.max(1, parseInt(Astro.url.searchParams.get('page') ?? '1
 const limit      = 48;
 const offset     = (page - 1) * limit;
 
+// When a sector is selected but no region/search/city, show the region card layout
+const showRegionCards = !!sectorSlug && !regionCode && !q && !citySlug;
+
 const filterOpts = { q, sectorSlug, citySlug, regionCode };
 
-const [listings, total, sectors, cities] = await Promise.all([
-  getListingCards({ ...filterOpts, limit, offset }),
-  countListingCards(filterOpts),
+const [listings, total, sectors, cities, regionCounts] = await Promise.all([
+  showRegionCards ? Promise.resolve([]) : getListingCards({ ...filterOpts, limit, offset }),
+  showRegionCards ? Promise.resolve(0)  : countListingCards(filterOpts),
   getAllSectors(),
   getAllCities(),
+  showRegionCards ? getSectorRegionCounts(sectorSlug!) : Promise.resolve({} as Record<string, number>),
 ]);
 
 const totalPages = Math.ceil(total / limit);
+
+const regionCards = showRegionCards ? [
+  {
+    label:  'Northern New Mexico',
+    cities: 'Santa Fe, Taos, Los Alamos, Española, Raton',
+    href:   `/nonprofits/?sector=${sectorSlug}&region=northern_nm`,
+    img:    '/images/cities/taos.jpg',
+    count:  regionCounts['northern_nm'] ?? 0,
+  },
+  {
+    label:  'Northwestern / Western NM',
+    cities: 'Farmington, Gallup, Grants, Four Corners communities',
+    href:   `/nonprofits/?sector=${sectorSlug}&region=four_corners`,
+    img:    'https://images.unsplash.com/photo-1637981107571-de24baf9a2b0?w=1200&h=500&fit=crop&auto=format',
+    count:  regionCounts['four_corners'] ?? 0,
+  },
+  {
+    label:  'Central New Mexico',
+    cities: 'Albuquerque, Rio Rancho, Bernalillo, Los Lunas',
+    href:   `/nonprofits/?sector=${sectorSlug}&region=albuquerque_metro`,
+    img:    'https://images.unsplash.com/photo-1596466738386-42fcaf328caa?w=1200&h=500&fit=crop&auto=format',
+    count:  regionCounts['albuquerque_metro'] ?? 0,
+  },
+  {
+    label:  'Southern New Mexico',
+    cities: 'Las Cruces, Silver City, Alamogordo, Socorro',
+    href:   `/nonprofits/?sector=${sectorSlug}&region=southern_nm`,
+    img:    'https://images.unsplash.com/photo-1628328052245-6a16b95499ef?w=1200&h=500&fit=crop&auto=format',
+    count:  regionCounts['southern_nm'] ?? 0,
+  },
+  {
+    label:  'Eastern New Mexico',
+    cities: 'Roswell, Clovis, Carlsbad, Hobbs, Tucumcari',
+    href:   `/nonprofits/?sector=${sectorSlug}&region=eastern_nm`,
+    img:    'https://images.unsplash.com/photo-1654450706032-46e2a14d6c91?w=1200&h=500&fit=crop&auto=format',
+    count:  regionCounts['eastern_nm'] ?? 0,
+  },
+] : [];
 
 // Build query string helper, preserving all active filters
 function pageUrl(p: number) {
@@ -115,7 +157,36 @@ if (totalPages <= 7) {
 
       <!-- Results grid -->
       <div class="flex-1">
-        {listings.length > 0 ? (
+        {showRegionCards ? (
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {regionCards.map((r) => (
+              <a
+                href={r.href}
+                class="group rounded-2xl overflow-hidden bg-white border border-gray-100 hover:shadow-lg transition-all"
+              >
+                <div class="h-40 overflow-hidden relative">
+                  <img
+                    src={r.img}
+                    alt={r.label}
+                    width="600"
+                    height="320"
+                    loading="lazy"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent" />
+                  <div class="absolute bottom-0 left-0 p-4">
+                    <h3 class="text-white font-serif font-bold text-base leading-tight">{r.label}</h3>
+                    <p class="text-white/75 text-xs mt-0.5">{r.count.toLocaleString()} organizations</p>
+                  </div>
+                </div>
+                <div class="px-4 py-3 flex items-center justify-between">
+                  <p class="text-sm text-gray-500 leading-snug">{r.cities}</p>
+                  <span class="text-turquoise-600 text-sm ml-3 shrink-0 group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        ) : listings.length > 0 ? (
           <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {listings.map((l) => <ListingCard listing={l} />)}
           </div>
