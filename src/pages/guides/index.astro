@@ -50,31 +50,31 @@ const posts = await getPublishedPosts(20);
         {[
           {
             href:     'https://amzn.to/4w9LqZ9',
-            asin:     '0758673639',
+            coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/0758673639.01.L.jpg',
             category: 'Governance',
             title:    'The CEO and the Board: Nonprofit Governance for a Competitive World',
           },
           {
             href:     'https://amzn.to/4gLiLoQ',
-            asin:     '1804093866',
+            coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1804093866.01.L.jpg',
             category: 'Board Development',
             title:    'The Little Book of Boards: A Board Member\'s Handbook for Small (and Very Small) Nonprofits',
           },
           {
             href:     'https://amzn.to/4eQ0hB8',
-            asin:     '1413331513',
+            coverUrl: 'https://images-na.ssl-images-amazon.com/images/P/1413331513.01.L.jpg',
             category: 'Getting Started',
             title:    'Starting and Building a Nonprofit: A Practical Guide',
           },
           {
             href:     'https://amzn.to/4eOTSWG',
-            asin:     'B00A6MGBIC',
+            coverUrl: null,
             category: 'Fundraising',
             title:    'The Little Book of Gold: Fundraising for Small (and Very Small) Nonprofits',
           },
           {
             href:     'https://amzn.to/4oXQSfA',
-            asin:     'B0GCCFQTJT',
+            coverUrl: null,
             category: 'Donor Advised Funds',
             title:    'The DAF Revolution: Making a Difference in the Modern Philanthropic Era',
           },
@@ -85,14 +85,20 @@ const posts = await getPublishedPosts(20);
             rel="noopener noreferrer sponsored"
             class="card p-5 flex gap-4 items-start group hover:shadow-md transition-shadow"
           >
-            <img
-              src={`https://images-na.ssl-images-amazon.com/images/P/${book.asin}.01.L.jpg`}
-              alt={book.title}
-              width="80"
-              height="120"
-              loading="lazy"
-              class="w-16 h-auto rounded shadow-sm flex-shrink-0 object-contain"
-            />
+            {book.coverUrl ? (
+              <img
+                src={book.coverUrl}
+                alt={book.title}
+                width="80"
+                height="120"
+                loading="lazy"
+                class="w-16 rounded shadow-sm flex-shrink-0 object-contain"
+              />
+            ) : (
+              <div class="w-16 h-24 rounded bg-turquoise-50 flex items-center justify-center flex-shrink-0">
+                <img src="/favicon.svg" alt="" aria-hidden="true" class="w-8 h-8 opacity-40" />
+              </div>
+            )}
             <div class="min-w-0">
               <p class="text-xs font-semibold text-turquoise-700 uppercase tracking-wide mb-1">{book.category}</p>
               <h3 class="font-semibold text-gray-900 group-hover:text-turquoise-700 transition-colors leading-snug text-sm">
