@@ -219,6 +219,31 @@ const editorial = EDITORIAL[slug] ?? '';
 const metaTitle = sector.meta_title ?? `${sector.name} Nonprofits in New Mexico | NM Nonprofits`;
 const metaDesc  = sector.meta_description ?? `Find ${sector.name.toLowerCase()} nonprofits in New Mexico. Browse organizations, learn about funding, and connect with the sector.`;
 
+const BOOKS = {
+  'ceo-board':    { href: 'https://amzn.to/4w9LqZ9', cover: 'https://images-na.ssl-images-amazon.com/images/P/0758673639.01.L.jpg', title: 'The CEO and the Board',                 category: 'Governance'           },
+  'boards':       { href: 'https://amzn.to/4gLiLoQ', cover: 'https://images-na.ssl-images-amazon.com/images/P/1804093866.01.L.jpg', title: 'The Little Book of Boards',             category: 'Board Development'    },
+  'starting':     { href: 'https://amzn.to/4eQ0hB8', cover: 'https://images-na.ssl-images-amazon.com/images/P/1413331513.01.L.jpg', title: 'Starting and Building a Nonprofit',    category: 'Getting Started'      },
+  'gold':         { href: 'https://amzn.to/4eOTSWG', cover: '/images/books/little-book-of-gold.jpg',                                title: 'The Little Book of Gold',              category: 'Fundraising'          },
+  'daf':          { href: 'https://amzn.to/4oXQSfA', cover: '/images/books/daf-revolution.jpg',                                    title: 'The DAF Revolution',                   category: 'Donor Advised Funds'  },
+};
+
+const SECTOR_BOOKS: Record<string, (keyof typeof BOOKS)[]> = {
+  'animal-welfare':           ['boards', 'gold'],
+  'arts-culture':             ['boards', 'gold'],
+  'civic-engagement':         ['ceo-board', 'daf'],
+  'economic-development':     ['daf', 'ceo-board'],
+  'education-youth':          ['starting', 'gold'],
+  'environment-conservation': ['gold', 'boards'],
+  'food-agriculture':         ['gold', 'boards'],
+  'health-human-services':    ['starting', 'ceo-board'],
+  'housing-homelessness':     ['gold', 'daf'],
+  'immigration-refugee':      ['starting', 'gold'],
+  'indigenous-communities':   ['starting', 'gold'],
+  'substance-use-recovery':   ['starting', 'gold'],
+};
+
+const sectorBooks = (SECTOR_BOOKS[slug] ?? ['gold', 'boards']).map(k => BOOKS[k]);
+
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
@@ -285,7 +310,26 @@ const schema = {
       </div>
     </div>
 
-    <div class="mt-10 pt-6 border-t border-gray-100 flex flex-wrap gap-4 justify-between items-center">
+    <!-- Recommended Reading -->
+    <div class="mt-10 pt-8 border-t border-gray-100">
+      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Recommended Reading</p>
+      <div class="flex flex-wrap gap-4">
+        {sectorBooks.map((book) => (
+          <a href={book.href} target="_blank" rel="noopener noreferrer sponsored"
+            class="flex gap-3 items-start group bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-sm rounded-xl p-4 transition-all max-w-xs">
+            <img src={book.cover} alt={book.title} width="56" height="84" loading="lazy"
+              class="w-12 rounded shadow-sm flex-shrink-0 object-contain" />
+            <div class="min-w-0">
+              <p class="text-xs text-turquoise-700 font-medium">{book.category}</p>
+              <p class="text-sm font-semibold text-gray-800 group-hover:text-turquoise-700 transition-colors leading-snug mt-0.5">{book.title}</p>
+              <p class="text-xs text-gray-400 mt-1">View on Amazon →</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div class="mt-8 pt-6 border-t border-gray-100 flex flex-wrap gap-4 justify-between items-center">
       <a href="/sectors/" class="text-sm text-turquoise-700 hover:underline">← All issue areas</a>
       <a href={`/nonprofits/?sector=${slug}`} class="text-sm text-gray-500 hover:text-gray-700">
         Search and filter {sector.name} orgs →
