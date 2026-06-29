@@ -30,10 +30,10 @@ const sectorImg: Record<string, string> = {
 
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
       {sectors.map((s) => (
-        <a
-          href={`/sectors/${s.slug}/`}
-          class="rounded-xl overflow-hidden bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all group"
-        >
+        <div class="relative rounded-xl overflow-hidden bg-white border border-gray-100 hover:border-turquoise-200 hover:shadow-md transition-all group">
+          <!-- full-cover card link -->
+          <a href={`/sectors/${s.slug}/`} class="absolute inset-0 z-0" aria-label={s.name}></a>
+
           <div class="h-36 overflow-hidden">
             <img
               src={sectorImg[s.slug] ?? '/images/sectors/environment-conservation.jpg'}
@@ -48,18 +48,17 @@ const sectorImg: Record<string, string> = {
             <h2 class="font-semibold text-gray-900 group-hover:text-turquoise-700 transition-colors leading-snug">
               {s.name}
             </h2>
-            <div class="flex flex-wrap gap-3 text-xs text-gray-400 mt-1.5">
+            <div class="relative z-10 flex flex-wrap gap-3 text-xs text-gray-400 mt-1.5">
               <span>{s.org_count} nonprofits</span>
               {s.active_grant_count > 0 && (
-                <a
-                  href={`/grants/?sector=${s.slug}`}
-                  class="text-turquoise-600 font-medium hover:underline"
-                  onclick="event.stopPropagation()"
-                >{s.active_grant_count} open grants</a>
+                <a href={`/grants/?sector=${s.slug}`}
+                  class="text-turquoise-600 font-medium hover:underline">
+                  {s.active_grant_count} open grants
+                </a>
               )}
             </div>
           </div>
-        </a>
+        </div>
       ))}
     </div>
   </div>
