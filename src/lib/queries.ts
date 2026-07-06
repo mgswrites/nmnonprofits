@@ -40,6 +40,7 @@ export async function getCitiesWithOrgs(): Promise<City[]> {
     SELECT c.*, COUNT(l.id)::int AS org_count
     FROM cities c
     JOIN listings l ON l.city_id = c.id AND l.status = 'approved' AND l.deleted_at IS NULL
+      AND l.mission IS NOT NULL AND l.mission <> ''
     GROUP BY c.id
     HAVING COUNT(l.id) > 0
     ORDER BY COUNT(l.id) DESC, c.name
@@ -52,6 +53,7 @@ export async function getCitiesInRegion(regionCode: string): Promise<City[]> {
     SELECT c.*, COUNT(l.id)::int AS org_count
     FROM cities c
     JOIN listings l ON l.city_id = c.id AND l.status = 'approved' AND l.deleted_at IS NULL
+      AND l.mission IS NOT NULL AND l.mission <> ''
     WHERE c.region_code = ${regionCode}
     GROUP BY c.id
     HAVING COUNT(l.id) > 0
@@ -72,7 +74,9 @@ export async function getSectorRegionCounts(sectorSlug: string): Promise<Record<
     FROM listings l
     JOIN listing_sectors ls ON ls.listing_id = l.id
     JOIN sectors s ON s.id = ls.sector_id
-    WHERE l.status = 'approved' AND l.deleted_at IS NULL AND s.slug = ${sectorSlug}
+    WHERE l.status = 'approved' AND l.deleted_at IS NULL
+      AND l.mission IS NOT NULL AND l.mission <> ''
+      AND s.slug = ${sectorSlug}
     GROUP BY l.region_code
   `;
   return Object.fromEntries(rows.map(r => [r.region_code, r.org_count]));
@@ -107,6 +111,7 @@ export async function getRegionSummaries(): Promise<RegionSummary[]> {
       ON l.region_code = r.code
       AND l.status = 'approved'
       AND l.deleted_at IS NULL
+      AND l.mission IS NOT NULL AND l.mission <> ''
     WHERE r.code != 'statewide'
     GROUP BY r.code, r.name
     ORDER BY org_count DESC
@@ -156,6 +161,7 @@ export async function getListingCards(opts: {
     LEFT JOIN cities c           ON c.id = l.city_id
     WHERE l.deleted_at IS NULL
       AND l.status = 'approved'
+      AND l.mission IS NOT NULL AND l.mission <> ''
       AND (${qParam}::text IS NULL
            OR l.search_vector @@ plainto_tsquery('english', ${qParam}))
       AND (${sectorSlug ?? null}::text IS NULL OR s.slug = ${sectorSlug ?? null})
@@ -190,6 +196,7 @@ export async function countListingCards(opts: {
     LEFT JOIN cities c           ON c.id = l.city_id
     WHERE l.deleted_at IS NULL
       AND l.status = 'approved'
+      AND l.mission IS NOT NULL AND l.mission <> ''
       AND (${qParam}::text IS NULL
            OR l.search_vector @@ plainto_tsquery('english', ${qParam}))
       AND (${sectorSlug ?? null}::text IS NULL OR s.slug = ${sectorSlug ?? null})
@@ -228,6 +235,7 @@ export async function getRelatedListings(opts: {
     LEFT JOIN sectors s          ON s.id = ls.sector_id
     WHERE l.deleted_at IS NULL
       AND l.status = 'approved'
+      AND l.mission IS NOT NULL AND l.mission <> ''
       AND l.id != ${listingId}
       AND (
         (${cityParam}::text IS NOT NULL

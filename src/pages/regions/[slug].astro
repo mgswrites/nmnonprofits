@@ -163,7 +163,7 @@ const totalOrgs = cities.reduce((sum, c) => sum + (c.org_count ?? 0), 0);
                 <span class="text-sm font-semibold text-gray-800 group-hover:text-turquoise-700 transition-colors leading-snug block">
                   {c.name}
                 </span>
-                <span class="text-xs text-gray-400 mt-0.5 block">{c.org_count} orgs</span>
+                <span class="text-xs text-gray-400 mt-0.5 block">{c.org_count} {c.org_count === 1 ? 'org' : 'orgs'}</span>
               </div>
             </a>
           ))}
