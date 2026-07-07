@@ -25,6 +25,13 @@ const sectors = await sql<Sector[]>`
 
 const related = await getRelatedListings({ listingId: listing.id, cityName: listing.city_name, regionCode: listing.region_code });
 
+const allSameCity = listing.city_name && related.length > 0 && related.every(r => r.city_name === listing.city_name);
+const relatedHeading = allSameCity
+  ? `Other nonprofits in ${listing.city_name}`
+  : listing.region_code
+    ? `Other nonprofits in ${regionLabel(listing.region_code)}`
+    : 'Other nonprofits in New Mexico';
+
 const metaTitle = buildMetaTitle(listing.meta_title ?? `${listing.name} | New Mexico Nonprofit`);
 const metaDesc  = listing.meta_description ?? listing.mission ?? `${listing.name} is a nonprofit organization in New Mexico.`;
 
@@ -212,7 +219,7 @@ const schema = {
     <section class="bg-gray-50 border-t border-gray-100 py-12">
       <div class="container-content">
         <h2 class="text-xl font-serif font-semibold text-gray-900 mb-6">
-          Other nonprofits in {listing.city_name ?? 'this region'}
+          {relatedHeading}
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {related.map((r) => <ListingCard listing={r} />)}
