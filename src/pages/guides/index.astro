@@ -3,6 +3,15 @@ import Layout from '../../layouts/Layout.astro';
 import { getPublishedPosts } from '../../lib/queries';
 
 const posts = await getPublishedPosts(20);
+
+const guideTopics = [
+  { label: 'Grant-Writing Essentials',       href: '/guides/grant-writing-essentials/' },
+  { label: 'Basic Marketing Tips',            href: '/guides/basic-nonprofit-marketing-tips/' },
+  { label: 'Fundraising Event Success Tips',  href: '/guides/fundraising-event-success-tips/' },
+  { label: 'Board Governance',                href: '/guides/board-governance-for-new-mexico-nonprofits/' },
+  { label: 'Fundraising Basics',              href: '/guides/fundraising-basics-for-new-mexico-nonprofits/' },
+  { label: 'Understanding the Form 990',      href: '/guides/understanding-the-form-990-for-new-mexico-nonprofits/' },
+];
 ---
 
 <Layout
@@ -13,32 +22,65 @@ const posts = await getPublishedPosts(20);
     <h1 class="text-3xl font-serif font-bold mb-2">Guides & How-Tos</h1>
     <p class="text-gray-500 mb-10">Practical resources for New Mexico nonprofits, grant writers, and funders</p>
 
-    {posts.length > 0 ? (
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map((post) => (
-          <a href={`/guides/${post.slug}/`} class="card p-0 overflow-hidden group flex flex-col">
-            {post.hero_image_url && (
-              <img src={post.hero_image_url} alt={post.title}
-                class="w-full h-40 object-cover bg-gray-100" loading="lazy" width="400" height="160" />
-            )}
-            <div class="p-5 flex flex-col gap-2 flex-1">
-              <h2 class="font-semibold text-gray-900 group-hover:text-turquoise-700 transition-colors leading-snug">
-                {post.title}
-              </h2>
-              {post.excerpt && (
-                <p class="text-sm text-gray-500 line-clamp-2">{post.excerpt}</p>
-              )}
-              <p class="text-xs text-gray-400 mt-auto">
-                {post.author_name}
-                {post.published_at && ` · ${new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
-              </p>
-            </div>
-          </a>
-        ))}
+    <div class="flex flex-col lg:flex-row gap-10">
+      <!-- Guide grid -->
+      <div class="flex-1 min-w-0">
+        {posts.length > 0 ? (
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {posts.map((post) => (
+              <a href={`/guides/${post.slug}/`} class="card p-0 overflow-hidden group flex flex-col">
+                {post.hero_image_url && (
+                  <img src={post.hero_image_url} alt={post.title}
+                    class="w-full h-40 object-cover bg-gray-100" loading="lazy" width="400" height="160" />
+                )}
+                <div class="p-5 flex flex-col gap-2 flex-1">
+                  <h2 class="font-semibold text-gray-900 group-hover:text-turquoise-700 transition-colors leading-snug">
+                    {post.title}
+                  </h2>
+                  {post.excerpt && (
+                    <p class="text-sm text-gray-500 line-clamp-2">{post.excerpt}</p>
+                  )}
+                  <p class="text-xs text-gray-400 mt-auto">
+                    {post.author_name}
+                    {post.published_at && ` · ${new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p class="text-gray-400 text-center py-20">Guides coming soon.</p>
+        )}
       </div>
-    ) : (
-      <p class="text-gray-400 text-center py-20">Guides coming soon.</p>
-    )}
+
+      <!-- Sidebar -->
+      <aside class="lg:w-60 shrink-0 space-y-6">
+        <div class="card p-5">
+          <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Guide Library</h2>
+          <ul class="space-y-2">
+            {guideTopics.map((t) => (
+              <li>
+                <a href={t.href} class="text-sm text-turquoise-700 hover:underline leading-snug block">
+                  {t.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Find Funding</h2>
+          <p class="text-xs text-gray-500 mb-3 leading-relaxed">Browse open grants for New Mexico nonprofits.</p>
+          <a href="/grants/" class="btn-primary text-xs w-full justify-center">View open grants</a>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Submit Your Org</h2>
+          <p class="text-xs text-gray-500 mb-3 leading-relaxed">Get your nonprofit listed in the NM directory for free.</p>
+          <a href="/submit/" class="btn-secondary text-xs w-full justify-center">Add your organization</a>
+        </div>
+      </aside>
+    </div>
 
     <!-- Recommended Reading -->
     <div class="mt-20 pt-12 border-t border-gray-100">
