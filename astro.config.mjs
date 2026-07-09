@@ -4,7 +4,7 @@ import vercel from '@astrojs/vercel';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://nmnonprofits.com',
+  site: 'https://www.nmnonprofits.com',
   output: 'static',
   adapter: vercel({
     // SSR pages (search, API routes) get edge-optimized Fluid Compute;

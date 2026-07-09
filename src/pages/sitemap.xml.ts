@@ -3,7 +3,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { getDb } from '../lib/db';
 
-const SITE = 'https://nmnonprofits.com';
+const SITE = 'https://www.nmnonprofits.com';
 
 const STATIC_PAGES = [
   { url: '/',                              priority: '1.0', changefreq: 'daily'   },
