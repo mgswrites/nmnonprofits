@@ -25,15 +25,18 @@ const sectors = await sql<Sector[]>`
 
 const related = await getRelatedListings({ listingId: listing.id, cityName: listing.city_name, regionCode: listing.region_code });
 
-const allSameCity = listing.city_name && related.length > 0 && related.every(r => r.city_name === listing.city_name);
-const relatedHeading = allSameCity
-  ? `Other nonprofits in ${listing.city_name}`
-  : listing.region_code
-    ? `Other nonprofits in ${regionLabel(listing.region_code)}`
-    : 'Other nonprofits in New Mexico';
+const relatedHeading = listing.region_code
+  ? `Other nonprofits in ${regionLabel(listing.region_code)}`
+  : 'Other nonprofits in New Mexico';
+
+function truncateAtWord(text: string, max = 155): string {
+  if (text.length <= max) return text;
+  return text.slice(0, max).replace(/\s+\S*$/, '') + '…';
+}
 
 const metaTitle = buildMetaTitle(listing.meta_title ?? `${listing.name} | New Mexico Nonprofit`);
-const metaDesc  = listing.meta_description ?? listing.mission ?? `${listing.name} is a nonprofit organization in New Mexico.`;
+const rawDesc   = listing.meta_description ?? listing.mission ?? `${listing.name} is a nonprofit organization in New Mexico.`;
+const metaDesc  = truncateAtWord(rawDesc);
 
 // Schema.org NGO markup
 const schema = {
@@ -75,13 +78,9 @@ const schema = {
   <article class="container-content pb-16">
     <!-- Hero / header -->
     <div class="flex flex-col md:flex-row gap-6 mb-10 items-start">
-      {listing.logo_url ? (
+      {listing.logo_url && (
         <img src={listing.logo_url} alt={`${listing.name} logo`} width="96" height="96"
           class="w-24 h-24 rounded-xl object-contain bg-gray-50 border border-gray-100 shrink-0" />
-      ) : (
-        <div class="w-24 h-24 rounded-xl bg-turquoise-50 flex items-center justify-center shrink-0">
-          <img src="/favicon.svg" alt="" aria-hidden="true" class="w-12 h-12 opacity-50" />
-        </div>
       )}
 
       <div class="flex-1 min-w-0">
@@ -107,7 +106,7 @@ const schema = {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Main content -->
       <div class="lg:col-span-2 space-y-8">
-        {listing.full_description && (
+        {listing.full_description && listing.full_description.trim() !== (listing.mission ?? '').trim() && (
           <section>
             <h2 class="text-xl font-serif font-semibold mb-3">About</h2>
             <div class="prose prose-sm max-w-none text-gray-700">

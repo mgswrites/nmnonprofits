@@ -17,6 +17,14 @@
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.nmnonprofits.com" }],
+      "destination": "https://nmnonprofits.com/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/sitemap.xml",

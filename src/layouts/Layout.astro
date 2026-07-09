@@ -20,7 +20,8 @@ const {
   noIndex = false,
 } = Astro.props;
 
-const canonical = canonicalUrl ?? new URL(Astro.url.pathname, Astro.site).href;
+const rawPath   = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : Astro.url.pathname + '/';
+const canonical = canonicalUrl ?? new URL(rawPath, Astro.site).href;
 ---
 
 <!doctype html>
