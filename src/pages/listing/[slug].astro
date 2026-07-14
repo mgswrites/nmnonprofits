@@ -6,7 +6,7 @@ import { getListingBySlug, getRelatedListings } from '../../lib/queries';
 import ListingCard from '../../components/listing/ListingCard.astro';
 import { getDb } from '../../lib/db';
 import { orgTypeLabel, regionLabel, formatCurrency, buildMetaTitle } from '../../lib/utils';
-import type { Sector } from '../../lib/types';
+import type { Sector, Listing } from '../../lib/types';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/nonprofits/');
@@ -16,18 +16,98 @@ if (!listing) return Astro.redirect('/nonprofits/', 301);
 
 // Fetch sectors for this listing
 const sql = getDb();
-const sectors = await sql<Sector[]>`
+const sectors: Sector[] = (await sql`
   SELECT s.* FROM sectors s
   JOIN listing_sectors ls ON ls.sector_id = s.id
   WHERE ls.listing_id = ${listing.id}
   ORDER BY ls.is_primary DESC, s.name
-`;
+`) as Sector[];
 
 const related = await getRelatedListings({ listingId: listing.id, cityName: listing.city_name, regionCode: listing.region_code });
 
 const relatedHeading = listing.region_code
   ? `Other nonprofits in ${regionLabel(listing.region_code)}`
   : 'Other nonprofits in New Mexico';
+
+// Auto-generated context paragraph from available data fields
+function buildContextParagraph(l: Listing, sects: Sector[]): string {
+  const type = orgTypeLabel(l.org_type);
+  const location = l.serves_statewide
+    ? 'New Mexico'
+    : [l.city_name, l.region_code ? regionLabel(l.region_code) : null].filter(Boolean).join(', ') || 'New Mexico';
+  const primarySector = sects[0]?.name?.toLowerCase();
+  const parts: string[] = [];
+
+  let opening = `${l.name} is a ${type} based in ${location}`;
+  if (primarySector) opening += `, with a focus on ${primarySector}`;
+  parts.push(opening + '.');
+
+  if (l.year_founded && l.annual_revenue) {
+    parts.push(`Founded in ${l.year_founded}, the organization reports annual revenues of ${formatCurrency(l.annual_revenue)}.`);
+  } else if (l.year_founded) {
+    parts.push(`The organization was founded in ${l.year_founded}.`);
+  } else if (l.annual_revenue) {
+    parts.push(`The organization reports annual revenues of ${formatCurrency(l.annual_revenue)}.`);
+  }
+
+  if (l.ein) {
+    const verified = l.is_verified || l.irs_verified;
+    parts.push(`${l.name} is a federally recognized tax-exempt organization (EIN: ${l.ein})${verified ? ', verified against IRS records' : ''}.`);
+  }
+
+  if (sects.length > 1) {
+    const others = sects.slice(1).map(s => s.name.toLowerCase()).join(' and ');
+    parts.push(`Beyond ${primarySector || 'its primary focus'}, the organization also works in ${others}.`);
+  }
+
+  if (l.serves_statewide) {
+    parts.push(`${l.name} provides services across the entire state of New Mexico.`);
+  } else if (l.city_name && l.region_code) {
+    parts.push(`The organization primarily serves the ${l.city_name} area and surrounding ${regionLabel(l.region_code)} communities.`);
+  }
+
+  return parts.join(' ');
+}
+
+const contextParagraph = buildContextParagraph(listing, sectors);
+
+// FAQ data + schema
+interface FAQ { q: string; a: string }
+const faqs: FAQ[] = [];
+if (listing.mission) {
+  faqs.push({ q: `What does ${listing.name} do?`, a: listing.mission });
+}
+const locStr = listing.serves_statewide
+  ? 'across New Mexico'
+  : listing.city_name
+    ? `in ${listing.city_name}${listing.region_code ? ', ' + regionLabel(listing.region_code) : ''}, New Mexico`
+    : 'in New Mexico';
+faqs.push({ q: `Where does ${listing.name} operate?`, a: `${listing.name} operates ${locStr}.` });
+if (listing.year_founded) {
+  faqs.push({ q: `When was ${listing.name} founded?`, a: `${listing.name} was founded in ${listing.year_founded}.` });
+}
+if (listing.ein) {
+  faqs.push({
+    q: `Is ${listing.name} a registered nonprofit?`,
+    a: `${listing.name} is a federally recognized tax-exempt organization registered with the IRS under EIN ${listing.ein}.`,
+  });
+}
+if (listing.website_url) {
+  faqs.push({
+    q: `How can I learn more about ${listing.name}?`,
+    a: `Visit ${listing.name} online at ${listing.website_url} for information about programs, services, and ways to get involved.`,
+  });
+}
+
+const faqSchema = faqs.length >= 2 ? {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(f => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+} : null;
 
 function truncateAtWord(text: string, max = 155): string {
   if (text.length <= max) return text;
@@ -58,7 +138,8 @@ const schema = {
 ---
 
 <Layout title={metaTitle} description={metaDesc} noIndex={!listing.mission}>
-  <script type="application/ld+json" slot="schema" set:html={JSON.stringify(schema)} />
+  <script is:inline type="application/ld+json" slot="schema" set:html={JSON.stringify(schema)} />
+  {faqSchema && <script is:inline type="application/ld+json" slot="schema" set:html={JSON.stringify(faqSchema)} />}
 
   <!-- Breadcrumb -->
   <nav class="container-content py-3 text-xs text-gray-400 flex gap-1.5 items-center">
@@ -127,6 +208,25 @@ const schema = {
                 </a>
               ))}
             </div>
+          </section>
+        )}
+
+        <section>
+          <h2 class="text-xl font-serif font-semibold mb-3">About {listing.name}</h2>
+          <p class="text-gray-700 leading-relaxed">{contextParagraph}</p>
+        </section>
+
+        {faqs.length >= 2 && (
+          <section>
+            <h2 class="text-xl font-serif font-semibold mb-4">Frequently Asked Questions</h2>
+            <dl class="space-y-5">
+              {faqs.map((f) => (
+                <div>
+                  <dt class="font-semibold text-gray-900 mb-1">{f.q}</dt>
+                  <dd class="text-gray-600 text-sm leading-relaxed">{f.a}</dd>
+                </div>
+              ))}
+            </dl>
           </section>
         )}
       </div>
@@ -210,6 +310,26 @@ const schema = {
             </a>
           </div>
         )}
+
+        <div class="card p-5 space-y-2">
+          <h3 class="font-semibold text-gray-800 text-sm mb-3">Explore New Mexico</h3>
+          {sectors[0] && (
+            <a href={`/sectors/${sectors[0].slug}/`} class="text-sm text-turquoise-700 hover:underline block">
+              {sectors[0].name} nonprofits in NM →
+            </a>
+          )}
+          {listing.region_code && (
+            <a href={`/regions/${listing.region_code.replace(/_/g, '-')}/`} class="text-sm text-turquoise-700 hover:underline block">
+              Nonprofits in {regionLabel(listing.region_code)} →
+            </a>
+          )}
+          <a href="/grants/" class="text-sm text-turquoise-700 hover:underline block">
+            Open grants in New Mexico →
+          </a>
+          <a href="/guides/" class="text-sm text-turquoise-700 hover:underline block">
+            Nonprofit guides &amp; resources →
+          </a>
+        </div>
       </aside>
     </div>
   </article>
