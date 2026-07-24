@@ -72,11 +72,13 @@ function buildContextParagraph(l: Listing, sects: Sector[]): string {
 const contextParagraph = buildContextParagraph(listing, sectors);
 
 // FAQ data + schema
+// Mission is already displayed in the hero — keep it in schema only, not visible FAQ
 interface FAQ { q: string; a: string }
-const faqs: FAQ[] = [];
+const schemaFaqs: FAQ[] = [];
 if (listing.mission) {
-  faqs.push({ q: `What does ${listing.name} do?`, a: listing.mission });
+  schemaFaqs.push({ q: `What does ${listing.name} do?`, a: listing.mission });
 }
+const faqs: FAQ[] = []; // visible FAQ — excludes mission to avoid duplicate
 const locStr = listing.serves_statewide
   ? 'across New Mexico'
   : listing.city_name
@@ -99,10 +101,11 @@ if (listing.website_url) {
   });
 }
 
-const faqSchema = faqs.length >= 2 ? {
+const allSchemaFaqs = [...schemaFaqs, ...faqs];
+const faqSchema = allSchemaFaqs.length >= 2 ? {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  mainEntity: faqs.map(f => ({
+  mainEntity: allSchemaFaqs.map(f => ({
     '@type': 'Question',
     name: f.q,
     acceptedAnswer: { '@type': 'Answer', text: f.a },
