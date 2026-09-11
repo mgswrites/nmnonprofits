@@ -41,7 +41,7 @@ const heroImg = city.hero_image_url
   ?? '/images/cities/silver-city.jpg';
 ---
 
-<Layout title={metaTitle} description={metaDesc}>
+<Layout title={metaTitle} description={metaDesc} noIndex={listings.length < 5}>
   <!-- Hero -->
   <div class="relative h-56 md:h-72 overflow-hidden">
     <img
