@@ -2,7 +2,7 @@ import { getDb } from './db';
 import type {
   Listing, ListingCard, Funder, Grant, GrantCard,
   Sector, SectorSummary, City, Region, Post, NmRegion,
-  JobCard, JobPosting, Resource, ResourceCard,
+  JobCard, JobPosting, Resource, ResourceCard, Event,
 } from './types';
 
 // ----------------------------------------------------------------
@@ -448,4 +448,18 @@ export async function getResourceBySlug(slug: string): Promise<Resource | null> 
     SELECT * FROM resources WHERE slug = ${slug} AND is_published = true LIMIT 1
   `;
   return rows[0] ?? null;
+}
+
+// ----------------------------------------------------------------
+// Events
+// ----------------------------------------------------------------
+
+export async function getUpcomingEvents(limit = 4): Promise<Event[]> {
+  const sql = getDb();
+  return sql<Event[]>`
+    SELECT * FROM events
+    WHERE event_date >= CURRENT_DATE
+    ORDER BY event_date ASC
+    LIMIT ${limit}
+  `;
 }

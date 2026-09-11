@@ -4,13 +4,15 @@ export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 import ListingCard from '../components/listing/ListingCard.astro';
 import GrantCard from '../components/grant/GrantCard.astro';
-import { getFeaturedListings, getOpenGrants, getSectorSummaries, getRegionSummaries } from '../lib/queries';
+import { getFeaturedListings, getOpenGrants, getSectorSummaries, getRegionSummaries, getUpcomingEvents, getResourceCards } from '../lib/queries';
 
-const [featuredListings, openGrants, sectors, regions] = await Promise.all([
+const [featuredListings, openGrants, sectors, regions, upcomingEvents, featuredResources] = await Promise.all([
   getFeaturedListings(6),
   getOpenGrants(6),
   getSectorSummaries(),
   getRegionSummaries(),
+  getUpcomingEvents(4),
+  getResourceCards({ limit: 3 }),
 ]);
 
 const sectorImg: Record<string, string> = {
@@ -256,6 +258,92 @@ const cityLinks = [
       <div class="container-content py-10">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {openGrants.map((g) => <GrantCard grant={g} />)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Upcoming Events -->
+  {upcomingEvents.length > 0 && (
+    <section class="bg-gray-50">
+      <div class="bg-turquoise-800 py-8">
+        <div class="container-content flex items-center justify-between">
+          <div>
+            <h2 class="text-white font-serif text-2xl font-semibold mb-1">Upcoming Events</h2>
+            <p class="text-turquoise-200 text-sm">Arts, culture, and nonprofit events across New Mexico</p>
+          </div>
+          <a href="/events/" class="btn-secondary border-turquoise-400 bg-transparent text-white hover:bg-white/10 text-sm shrink-0">View all events</a>
+        </div>
+      </div>
+      <div class="container-content py-10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {upcomingEvents.map((ev) => {
+            const d = new Date(ev.event_date + 'T12:00:00');
+            const month = d.toLocaleString('en-US', { month: 'short' });
+            const day   = d.getDate();
+            return (
+              <a
+                href={ev.website_url ?? ev.registration_url ?? '/events/'}
+                target={ev.website_url || ev.registration_url ? '_blank' : undefined}
+                rel={ev.website_url || ev.registration_url ? 'noopener noreferrer' : undefined}
+                class="bg-white border border-gray-100 rounded-xl p-5 hover:border-turquoise-200 hover:shadow-md transition-all flex gap-4"
+              >
+                <div class="shrink-0 text-center w-12">
+                  <span class="block text-xs font-semibold text-zia-600 uppercase tracking-wide">{month}</span>
+                  <span class="block text-2xl font-bold text-gray-900 leading-none">{day}</span>
+                </div>
+                <div class="min-w-0">
+                  <h3 class="text-sm font-semibold text-gray-900 leading-snug line-clamp-2">{ev.title}</h3>
+                  {ev.event_type && (
+                    <span class="mt-1.5 inline-block text-xs px-2 py-0.5 rounded-full bg-turquoise-50 text-turquoise-700">{ev.event_type}</span>
+                  )}
+                  {ev.is_free && (
+                    <span class="mt-1.5 ml-1 inline-block text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700">Free</span>
+                  )}
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Tools and Resources -->
+  {featuredResources.length > 0 && (
+    <section>
+      <div class="bg-zia-700 py-8">
+        <div class="container-content flex items-center justify-between">
+          <div>
+            <h2 class="text-white font-serif text-2xl font-semibold mb-1">Tools and Resources</h2>
+            <p class="text-zia-200 text-sm">Guides, templates, and databases for NM nonprofits and artists</p>
+          </div>
+          <a href="/resources/" class="btn-secondary border-zia-500 bg-transparent text-white hover:bg-white/10 text-sm shrink-0">View all resources</a>
+        </div>
+      </div>
+      <div class="container-content py-10">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {featuredResources.map((r) => (
+            <a
+              href={r.url ?? `/resources/${r.slug}/`}
+              target={r.url ? '_blank' : undefined}
+              rel={r.url ? 'noopener noreferrer' : undefined}
+              class="bg-white border border-gray-100 rounded-xl p-5 hover:border-turquoise-200 hover:shadow-md transition-all"
+            >
+              <div class="flex items-center gap-2 mb-2">
+                {r.resource_type && (
+                  <span class="text-xs px-2 py-0.5 rounded-full bg-turquoise-50 text-turquoise-700 capitalize">{r.resource_type}</span>
+                )}
+                {r.is_free && (
+                  <span class="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700">Free</span>
+                )}
+              </div>
+              <h3 class="text-sm font-semibold text-gray-900 leading-snug mb-1">{r.title}</h3>
+              {r.description && (
+                <p class="text-xs text-gray-500 line-clamp-2">{r.description}</p>
+              )}
+            </a>
+          ))}
         </div>
       </div>
     </section>
