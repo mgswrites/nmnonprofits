@@ -9,6 +9,8 @@ const STATIC_PAGES = [
   { url: '/funders/',                      priority: '0.8', changefreq: 'weekly'  },
   { url: '/grants/',                       priority: '0.8', changefreq: 'daily'   },
   { url: '/jobs/',                         priority: '0.8', changefreq: 'daily'   },
+  { url: '/events/',                       priority: '0.7', changefreq: 'weekly'  },
+  { url: '/resources/',                    priority: '0.7', changefreq: 'weekly'  },
   { url: '/sectors/',                      priority: '0.7', changefreq: 'monthly' },
   { url: '/guides/',                       priority: '0.6', changefreq: 'weekly'  },
   { url: '/regions/albuquerque-metro/',    priority: '0.7', changefreq: 'weekly'  },
@@ -33,7 +35,7 @@ function entry(url: string, priority: string, changefreq: string, lastmod?: stri
 export const GET: APIRoute = async () => {
   const sql = getDb();
 
-  const [listings, jobs, cities, sectors, funders, guides] = await Promise.all([
+  const [listings, jobs, cities, sectors, funders, guides, resources] = await Promise.all([
     sql<{ slug: string; updated_at: string }[]>`
       SELECT slug, updated_at FROM listings
       WHERE status = 'approved' AND deleted_at IS NULL
@@ -44,9 +46,13 @@ export const GET: APIRoute = async () => {
       WHERE status = 'approved' AND deleted_at IS NULL
       ORDER BY slug`,
     sql<{ slug: string }[]>`
-      SELECT DISTINCT c.slug FROM cities c
+      SELECT c.slug FROM cities c
       INNER JOIN listings l ON l.city_id = c.id
-      WHERE l.status = 'approved' AND l.deleted_at IS NULL
+        AND l.status = 'approved' AND l.deleted_at IS NULL
+        AND l.mission IS NOT NULL AND l.mission <> ''
+      WHERE l.status = 'approved'
+      GROUP BY c.id, c.slug
+      HAVING COUNT(l.id) >= 5
       ORDER BY c.slug`,
     sql<{ slug: string }[]>`SELECT slug FROM sectors ORDER BY slug`,
     sql<{ slug: string; updated_at: string }[]>`
@@ -55,6 +61,10 @@ export const GET: APIRoute = async () => {
       ORDER BY slug`,
     sql<{ slug: string; updated_at: string }[]>`
       SELECT slug, updated_at FROM posts
+      WHERE is_published = true
+      ORDER BY slug`,
+    sql<{ slug: string; updated_at: string }[]>`
+      SELECT slug, updated_at FROM resources
       WHERE is_published = true
       ORDER BY slug`,
   ]);
@@ -70,6 +80,8 @@ export const GET: APIRoute = async () => {
     ...funders.map(r => entry(`/funders/${r.slug}/`, '0.6', 'monthly',
       r.updated_at ? new Date(r.updated_at).toISOString().slice(0, 10) : undefined)),
     ...guides.map(r => entry(`/guides/${r.slug}/`, '0.6', 'weekly',
+      r.updated_at ? new Date(r.updated_at).toISOString().slice(0, 10) : undefined)),
+    ...resources.map(r => entry(`/resources/${r.slug}/`, '0.5', 'monthly',
       r.updated_at ? new Date(r.updated_at).toISOString().slice(0, 10) : undefined)),
   ];
 

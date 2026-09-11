@@ -6,4 +6,4 @@ Disallow: /submit/confirm/
 Disallow: /jobs/submit/confirm/
 Disallow: /api/
 
-Sitemap: https://nmnonprofits.com/sitemap.xml
+Sitemap: https://www.nmnonprofits.com/sitemap.xml
