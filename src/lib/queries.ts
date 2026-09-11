@@ -2,7 +2,7 @@ import { getDb } from './db';
 import type {
   Listing, ListingCard, Funder, Grant, GrantCard,
   Sector, SectorSummary, City, Region, Post, NmRegion,
-  JobCard, JobPosting,
+  JobCard, JobPosting, Resource, ResourceCard,
 } from './types';
 
 // ----------------------------------------------------------------
@@ -403,6 +403,49 @@ export async function getJobBySlug(slug: string): Promise<JobPosting | null> {
     SELECT * FROM job_postings
     WHERE slug = ${slug} AND deleted_at IS NULL AND status = 'approved'
     LIMIT 1
+  `;
+  return rows[0] ?? null;
+}
+
+// ----------------------------------------------------------------
+// Resources
+// ----------------------------------------------------------------
+
+export async function getResourceCards(opts: {
+  sectorSlug?: string;
+  resourceType?: string;
+  limit?: number;
+  offset?: number;
+} = {}): Promise<ResourceCard[]> {
+  const sql = getDb();
+  const { sectorSlug, resourceType, limit = 60, offset = 0 } = opts;
+  return sql<ResourceCard[]>`
+    SELECT
+      r.id, r.slug, r.title, r.description, r.resource_type,
+      r.url, r.is_free, r.author_name,
+      COALESCE(
+        json_agg(
+          json_build_object('id', s.id, 'name', s.name, 'slug', s.slug)
+        ) FILTER (WHERE s.id IS NOT NULL),
+        '[]'
+      ) AS sectors
+    FROM resources r
+    LEFT JOIN resource_sectors rs ON rs.resource_id = r.id
+    LEFT JOIN sectors s           ON s.id = rs.sector_id
+    WHERE r.is_published = true
+      AND (${resourceType ?? null}::text IS NULL OR r.resource_type = ${resourceType ?? null})
+      AND (${sectorSlug   ?? null}::text IS NULL OR s.slug = ${sectorSlug ?? null})
+    GROUP BY r.id
+    ORDER BY r.published_at DESC NULLS LAST, r.title
+    LIMIT  ${limit}
+    OFFSET ${offset}
+  `;
+}
+
+export async function getResourceBySlug(slug: string): Promise<Resource | null> {
+  const sql = getDb();
+  const rows = await sql<Resource[]>`
+    SELECT * FROM resources WHERE slug = ${slug} AND is_published = true LIMIT 1
   `;
   return rows[0] ?? null;
 }

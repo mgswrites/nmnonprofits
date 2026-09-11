@@ -1,0 +1,78 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import ResourceCard from '../../components/resource/ResourceCard.astro';
+import { getResourceCards, getAllSectors } from '../../lib/queries';
+
+const url = Astro.url;
+const sectorSlug   = url.searchParams.get('sector')  || undefined;
+const resourceType = url.searchParams.get('type')    || undefined;
+
+const [resources, sectors] = await Promise.all([
+  getResourceCards({ sectorSlug, resourceType }),
+  getAllSectors(),
+]);
+
+const RESOURCE_TYPES = [
+  { value: 'guide',     label: 'Guide' },
+  { value: 'template',  label: 'Template' },
+  { value: 'tool',      label: 'Tool' },
+  { value: 'database',  label: 'Database' },
+  { value: 'directory', label: 'Directory' },
+  { value: 'training',  label: 'Training' },
+];
+---
+
+<Layout
+  title="Resources for New Mexico Nonprofits and Artists | NM Nonprofits"
+  description="Curated tools, guides, templates, and databases for New Mexico nonprofits, arts organizations, and working artists."
+>
+  <!-- Header band -->
+  <div class="bg-turquoise-800 py-10">
+    <div class="container-content">
+      <h1 class="text-3xl font-serif font-bold text-white mb-1">Resources</h1>
+      <p class="text-turquoise-200 text-sm">Tools, guides, and databases for NM nonprofits and artists</p>
+    </div>
+  </div>
+
+  <div class="container-content py-10">
+    <!-- Filters -->
+    <form method="get" class="flex flex-wrap gap-3 mb-8">
+      <select name="type" onchange="this.form.submit()"
+        class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500 bg-white">
+        <option value="">All types</option>
+        {RESOURCE_TYPES.map(t => (
+          <option value={t.value} selected={resourceType === t.value}>{t.label}</option>
+        ))}
+      </select>
+
+      <select name="sector" onchange="this.form.submit()"
+        class="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-turquoise-500 bg-white">
+        <option value="">All issue areas</option>
+        {sectors.map(s => (
+          <option value={s.slug} selected={sectorSlug === s.slug}>{s.name}</option>
+        ))}
+      </select>
+
+      {(resourceType || sectorSlug) && (
+        <a href="/resources/" class="text-sm text-gray-500 hover:text-gray-700 flex items-center">Clear filters</a>
+      )}
+
+      <span class="text-sm text-gray-400 flex items-center ml-auto">
+        {resources.length} {resources.length === 1 ? 'resource' : 'resources'}
+      </span>
+    </form>
+
+    {resources.length > 0 ? (
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {resources.map(r => <ResourceCard resource={r} />)}
+      </div>
+    ) : (
+      <div class="text-center py-20 text-gray-400">
+        <p class="text-lg font-medium mb-2">No resources found</p>
+        <p class="text-sm">Try removing filters or check back soon.</p>
+      </div>
+    )}
+  </div>
+</Layout>

@@ -306,6 +306,36 @@ export interface JobCard {
   created_at: string;
 }
 
+export interface Resource {
+  id: number;
+  slug: string;
+  title: string;
+  description: string | null;
+  resource_type: string | null;
+  url: string | null;
+  file_url: string | null;
+  is_free: boolean;
+  author_name: string | null;
+  published_at: string | null;
+  is_published: boolean;
+  meta_title: string | null;
+  meta_description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ResourceCard {
+  id: number;
+  slug: string;
+  title: string;
+  description: string | null;
+  resource_type: string | null;
+  url: string | null;
+  is_free: boolean;
+  author_name: string | null;
+  sectors: Pick<Sector, 'id' | 'name' | 'slug'>[];
+}
+
 // ----------------------------------------------------------------
 // Form / API payload types
 // ----------------------------------------------------------------
