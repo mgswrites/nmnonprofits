@@ -191,8 +191,8 @@ export interface Event {
   slug: string;
   description: string | null;
   event_type: string | null;
-  event_date: string;
-  event_end_date: string | null;
+  event_date: string | Date;
+  event_end_date: string | Date | null;
   start_time: string | null;
   end_time: string | null;
   is_virtual: boolean;

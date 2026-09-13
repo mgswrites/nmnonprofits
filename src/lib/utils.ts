@@ -18,6 +18,13 @@ export function formatGrantRange(
   return `${formatCurrency(min)} – ${formatCurrency(max)}`;
 }
 
+export function toEventDate(eventDate: Date | string): Date {
+  // Neon returns `date` columns as Date objects at runtime (despite the
+  // string type in our TS types), so only apply the noon-anchoring
+  // workaround when we actually got a plain date string.
+  return eventDate instanceof Date ? eventDate : new Date(eventDate + 'T12:00:00');
+}
+
 export function formatDeadline(date: string | null): string {
   if (!date) return 'Rolling';
   return new Intl.DateTimeFormat('en-US', {

@@ -5,6 +5,7 @@ import Layout from '../layouts/Layout.astro';
 import ListingCard from '../components/listing/ListingCard.astro';
 import GrantCard from '../components/grant/GrantCard.astro';
 import { getFeaturedListings, getOpenGrants, getSectorSummaries, getRegionSummaries, getUpcomingEvents, getResourceCards } from '../lib/queries';
+import { toEventDate } from '../lib/utils';
 
 const [featuredListings, openGrants, sectors, regions, upcomingEvents, featuredResources] = await Promise.all([
   getFeaturedListings(6),
@@ -278,7 +279,7 @@ const cityLinks = [
       <div class="container-content py-10">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {upcomingEvents.map((ev) => {
-            const d = new Date(ev.event_date + 'T12:00:00');
+            const d = toEventDate(ev.event_date);
             const month = d.toLocaleString('en-US', { month: 'short' });
             const day   = d.getDate();
             return (

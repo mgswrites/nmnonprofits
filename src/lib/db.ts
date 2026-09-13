@@ -12,5 +12,3 @@ export function getDb(): NeonQueryFunction<false, false> {
   }
   return _sql;
 }
-
-export { sql } from '@neondatabase/serverless';
