@@ -1,5 +1,11 @@
 ---
-export const prerender = false;
+export const prerender = true;
+
+// Must match the keys of REGIONS below (getStaticPaths cannot read frontmatter variables).
+export function getStaticPaths() {
+  return ['albuquerque-metro', 'northern-new-mexico', 'southern-new-mexico', 'four-corners', 'eastern-new-mexico']
+    .map(slug => ({ params: { slug } }));
+}
 
 import Layout from '../../layouts/Layout.astro';
 import { getCitiesInRegion } from '../../lib/queries';

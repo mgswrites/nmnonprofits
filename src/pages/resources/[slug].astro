@@ -1,5 +1,12 @@
 ---
-export const prerender = false;
+export const prerender = true;
+
+import { resourceSlugs } from '../../lib/staticPaths';
+
+export async function getStaticPaths() {
+  const slugs = await resourceSlugs();
+  return slugs.map(slug => ({ params: { slug } }));
+}
 
 import Layout from '../../layouts/Layout.astro';
 import { getResourceBySlug } from '../../lib/queries';

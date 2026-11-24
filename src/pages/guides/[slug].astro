@@ -1,5 +1,12 @@
 ---
-export const prerender = false;
+export const prerender = true;
+
+import { postSlugs } from '../../lib/staticPaths';
+
+export async function getStaticPaths() {
+  const slugs = await postSlugs();
+  return slugs.map(slug => ({ params: { slug } }));
+}
 
 import Layout from '../../layouts/Layout.astro';
 import { getPostBySlug } from '../../lib/queries';
