@@ -1,5 +1,12 @@
 ---
-export const prerender = false;
+export const prerender = true;
+
+import { sectorSlugs } from '../../lib/staticPaths';
+
+export async function getStaticPaths() {
+  const slugs = await sectorSlugs();
+  return slugs.map(slug => ({ params: { slug } }));
+}
 
 import Layout from '../../layouts/Layout.astro';
 import { getSectorBySlug, getSectorRegionCounts } from '../../lib/queries';

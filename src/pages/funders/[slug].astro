@@ -1,5 +1,12 @@
 ---
-export const prerender = false;
+export const prerender = true;
+
+import { funderSlugs } from '../../lib/staticPaths';
+
+export async function getStaticPaths() {
+  const slugs = await funderSlugs();
+  return slugs.map(slug => ({ params: { slug } }));
+}
 
 import Layout from '../../layouts/Layout.astro';
 import GrantCard from '../../components/grant/GrantCard.astro';
